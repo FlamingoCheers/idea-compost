@@ -12,13 +12,17 @@ import com.ideacompost.app.ui.AppNavHost
 import com.ideacompost.app.ui.Routes
 import com.ideacompost.app.ui.theme.IdeaCompostTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    /** 与 OnboardingViewModel/ProviderStore 同一实例（加密存储），冷启动读取首启旗标。 */
+    @Inject lateinit var prefs: android.content.SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val prefs = getSharedPreferences("ideacompost", MODE_PRIVATE)
         setContent {
             IdeaCompostTheme {
                 var start by remember { mutableStateOf(

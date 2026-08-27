@@ -154,6 +154,17 @@ fun WaitScreen(
 
         Spacer(Modifier.weight(1f))
         if (failed) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(Clay)
+                    .clickable { vm.retry() }
+                    .padding(horizontal = 34.dp, vertical = 13.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("🔥 重新点火", fontSize = 14.sp, color = PaperWarm)
+            }
+            Spacer(Modifier.height(8.dp))
             Text(
                 "← 回到面包渣",
                 fontSize = 12.5.sp, color = InkSoft,

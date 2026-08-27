@@ -69,6 +69,23 @@ class WaitViewModel @Inject constructor(
         _started.value = false
     }
 
+    /** 失败重试：清阶段缓存 → 回到 pending → 守护循环自动点火。 */
+    fun retry() {
+        if (_restarting) return
+        _restarting = true
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                compostDao.clearStages(compostId)
+                compostDao.resetForRetry(compostId, System.currentTimeMillis())
+            } finally {
+                runStarted = false
+                _restarting = false
+            }
+        }
+    }
+
+    private var _restarting = false
+
     override fun onCleared() {
         job?.cancel()
         super.onCleared()

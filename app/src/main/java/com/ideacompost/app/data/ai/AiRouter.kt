@@ -1,5 +1,6 @@
 package com.ideacompost.app.data.ai
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -21,7 +22,8 @@ interface LLMClient {
 
 @Singleton
 class AiRouter @Inject constructor(
-    private val providerStore: ProviderStore
+    private val providerStore: ProviderStore,
+    private val telemetry: com.ideacompost.app.data.db.dao.LlmCallDao
 ) : LLMClient {
 
     private val http = OkHttpClient.Builder()
@@ -33,18 +35,43 @@ class AiRouter @Inject constructor(
 
     override suspend fun complete(stageKey: String, system: String, user: String): String {
         val cfg = providerStore.config()
-        if (cfg.mockMode) return mock.complete(stageKey, system, user)
-        return withContext(Dispatchers.IO) {
-            var last: IOException? = null
-            repeat(2) { attempt ->
-                try {
-                    return@withContext call(cfg, system, user)
-                } catch (e: IOException) {
-                    last = e
-                    if (attempt == 0) delay(1500)
+        val t0 = android.os.SystemClock.uptimeMillis()
+        try {
+            val r = if (cfg.mockMode) mock.complete(stageKey, system, user) else withContext(Dispatchers.IO) {
+                var last: IOException? = null
+                repeat(3) { attempt ->
+                    try {
+                        return@withContext call(cfg, system, user)
+                    } catch (e: IOException) {
+                        last = e
+                        // 网关限流/瞬断退避：2s / 6s（specs/02 §3）
+                        if (attempt < 2) delay(if (attempt == 0) 2000L else 6000L)
+                    }
                 }
+                throw last ?: IOException("llm call failed")
             }
-            throw last ?: IOException("llm call failed")
+            telemetry.insert(
+                com.ideacompost.app.data.db.entity.LlmCallEntity(
+                    ts = System.currentTimeMillis(), stageKey = stageKey,
+                    provider = if (cfg.mockMode) "mock" else cfg.model,
+                    status = "ok", promptChars = system.length + user.length,
+                    responseChars = r.length, latencyMs = android.os.SystemClock.uptimeMillis() - t0
+                )
+            )
+            return r
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            telemetry.insert(
+                com.ideacompost.app.data.db.entity.LlmCallEntity(
+                    ts = System.currentTimeMillis(), stageKey = stageKey,
+                    provider = if (cfg.mockMode) "mock" else cfg.model,
+                    status = "error", promptChars = system.length + user.length,
+                    responseChars = 0, latencyMs = android.os.SystemClock.uptimeMillis() - t0,
+                    error = e.message?.take(280)
+                )
+            )
+            throw e
         }
     }
 

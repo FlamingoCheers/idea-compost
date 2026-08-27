@@ -123,8 +123,10 @@ class CompostEngine @Inject constructor(
                 android.util.Log.d("CompostEngine", "S3 $r begin")
                 val participants = participantsFor(r, roster)
                 val outputs: List<org.json.JSONObject> = coroutineScope {
-                    val deferreds: List<Deferred<String>> = participants.map { agent ->
+                    val deferreds: List<Deferred<String>> = participants.mapIndexed { idx, agent ->
                         async {
+                            // 限流缓冲：并行调用错峰启动，避免网关 429（M3）
+                            if (idx > 0) kotlinx.coroutines.delay(idx * 700L)
                             val sys = agentCapability(agent) + "\n\n" +
                                     prompts.stage(r)
                                         .replace("{{agent_name}}", agent.name)

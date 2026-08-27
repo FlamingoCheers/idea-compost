@@ -57,6 +57,7 @@ fun SettingsScreen(
     vm: SettingsViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
+    val recent by vm.recentCalls.collectAsState()
     val ctx = LocalContext.current
 
     Column(
@@ -157,6 +158,58 @@ fun SettingsScreen(
                 color = if (state.mockMode || (state.baseUrl.isNotBlank() && state.apiKey.isNotBlank() && state.model.isNotBlank())) MossDeep else Clay,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
+            Spacer(Modifier.height(30.dp))
+
+            // 调用遥测（llm_calls）：透明可核对
+            Text("📡 调用遥测", style = SerifSection, color = Ink)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "每次 AI 调用都会留痕（含演示模式），只记录阶段、耗时与成败，不记录内容。",
+                fontSize = 11.sp, color = InkSoft, lineHeight = 16.sp
+            )
+            Spacer(Modifier.height(10.dp))
+            if (recent.isEmpty()) {
+                Text("还没有调用记录——去丢两颗面包渣，堆一次肥试试。", fontSize = 11.5.sp, color = InkFaint)
+            } else {
+                Column(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(PaperWarm).padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    recent.forEach { c ->
+                        Row(
+                            Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                Modifier.size(7.dp).clip(CircleShape)
+                                    .background(if (c.status == "ok") Moss else Clay)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(c.stageKey, fontSize = 11.5.sp, color = Ink, modifier = Modifier.width(72.dp))
+                            Text(
+                                if (c.status == "ok") "✓" else "✗",
+                                fontSize = 11.sp,
+                                color = if (c.status == "ok") MossDeep else Clay,
+                                modifier = Modifier.width(20.dp)
+                            )
+                            Text(
+                                if (c.latencyMs >= 60000)
+                                    "${c.latencyMs / 60000}′${String.format("%02d", (c.latencyMs % 60000) / 1000)}″"
+                                else "%.1fs".format(c.latencyMs / 1000.0),
+                                fontSize = 11.sp, color = InkSoft
+                            )
+                            Spacer(Modifier.weight(1f))
+                            Text(c.provider, fontSize = 10.sp, color = InkFaint, maxLines = 1)
+                        }
+                        if (c.error != null) {
+                            Text(
+                                "└ ${c.error}",
+                                fontSize = 10.sp, color = Clay, lineHeight = 14.sp,
+                                modifier = Modifier.padding(start = 15.dp, bottom = 2.dp)
+                            )
+                        }
+                    }
+                }
+            }
             Spacer(Modifier.height(30.dp))
         }
     }

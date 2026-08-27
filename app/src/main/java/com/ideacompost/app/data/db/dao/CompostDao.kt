@@ -55,4 +55,12 @@ interface CompostDao {
 
     @Query("SELECT COUNT(*) FROM feedback_events WHERE compost_id = :compostId")
     fun observeFeedbackCount(compostId: String): Flow<Int>
+
+    /** 失败重试：回到 pending（保留已有 output 的场景不会走到这里）。 */
+    @Query("UPDATE composts SET status = 'pending', current_stage = 'preflight', error = NULL, updated_at = :now WHERE id = :id AND status = 'failed'")
+    suspend fun resetForRetry(id: String, now: Long)
+
+    /** 重试时清空阶段缓存，全部重新发酵（宁多花调用，不留坏中间态）。 */
+    @Query("DELETE FROM compost_stages WHERE compost_id = :compostId")
+    suspend fun clearStages(compostId: String)
 }
