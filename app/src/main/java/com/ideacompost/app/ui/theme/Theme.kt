@@ -5,10 +5,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 
 import androidx.compose.ui.graphics.Color
 
@@ -41,13 +37,6 @@ private val DarkScheme = darkColorScheme(
     onBackground = DarkText,
     surface = DarkCard,
     onSurface = DarkText
-)
-
-val SerifTitle = TextStyle(
-    fontFamily = FontFamily.Serif,
-    fontWeight = FontWeight.Bold,
-    fontSize = 22.sp,
-    lineHeight = 30.sp
 )
 
 @Composable

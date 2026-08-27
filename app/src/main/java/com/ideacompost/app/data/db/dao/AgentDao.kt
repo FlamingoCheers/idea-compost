@@ -18,6 +18,21 @@ interface AgentDao {
     @Query("SELECT * FROM agents WHERE status IN ('active','embryo','compressed') ORDER BY vitality DESC")
     fun observeActive(): Flow<List<AgentEntity>>
 
+    @Query("SELECT * FROM agents WHERE status IN ('active','embryo','compressed')")
+    suspend fun convokable(): List<AgentEntity>
+
+    @Query("SELECT * FROM agents WHERE id = :id")
+    suspend fun byId(id: String): AgentEntity?
+
+    @Query("SELECT * FROM agents WHERE name = :name LIMIT 1")
+    suspend fun byName(name: String): AgentEntity?
+
+    @Query("UPDATE agents SET nutrition_buffer = nutrition_buffer + :amount, updated_at = :now WHERE id = :id")
+    suspend fun addNutrition(id: String, amount: Double, now: Long)
+
+    @Query("UPDATE agents SET participation_count = participation_count + 1, last_contribution_at = :now, updated_at = :now WHERE id = :id")
+    suspend fun recordParticipation(id: String, now: Long)
+
     @Query("SELECT * FROM agents WHERE type = 'domain' ORDER BY id")
     fun observeDomains(): Flow<List<AgentEntity>>
 

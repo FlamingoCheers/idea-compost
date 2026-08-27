@@ -17,7 +17,9 @@ import javax.inject.Inject
 
 data class CrumbsUiState(
     val input: String = "",
-    val justSaved: Boolean = false
+    val justSaved: Boolean = false,
+    val selecting: Boolean = false,
+    val selected: Set<String> = emptySet()
 )
 
 @HiltViewModel
@@ -60,5 +62,19 @@ class CrumbsViewModel @Inject constructor(
         viewModelScope.launch {
             ideaDao.updateContent(id, content.trim(), System.currentTimeMillis())
         }
+    }
+
+    fun toggleSelect(id: String) {
+        val s = _state.value
+        if (!s.selecting) {
+            _state.value = s.copy(selecting = true, selected = setOf(id), justSaved = false)
+        } else {
+            val next = s.selected.toMutableSet().apply { if (!add(id)) remove(id) }
+            _state.value = s.copy(selected = next, selecting = next.isNotEmpty())
+        }
+    }
+
+    fun exitSelection() {
+        _state.value = _state.value.copy(selecting = false, selected = emptySet())
     }
 }

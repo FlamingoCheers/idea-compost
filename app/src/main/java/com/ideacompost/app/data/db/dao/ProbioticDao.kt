@@ -17,4 +17,7 @@ interface ProbioticDao {
 
     @Query("SELECT COUNT(*) FROM probiotics")
     suspend fun count(): Int
+
+    @Query("SELECT * FROM probiotics WHERE id = :id")
+    suspend fun byId(id: String): ProbioticEntity?
 }

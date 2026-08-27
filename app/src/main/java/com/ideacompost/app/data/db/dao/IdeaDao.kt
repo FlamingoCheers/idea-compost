@@ -18,6 +18,12 @@ interface IdeaDao {
     @Query("SELECT * FROM ideas WHERE id = :id")
     suspend fun byId(id: String): IdeaEntity?
 
+    @Query("SELECT * FROM ideas WHERE id IN (:ids)")
+    suspend fun byIds(ids: List<String>): List<IdeaEntity>
+
+    @Query("UPDATE ideas SET status = 'composted', updated_at = :now WHERE id IN (:ids)")
+    suspend fun markComposted(ids: List<String>, now: Long)
+
     @Query("UPDATE ideas SET content = :content, updated_at = :updatedAt WHERE id = :id")
     suspend fun updateContent(id: String, content: String, updatedAt: Long)
 
