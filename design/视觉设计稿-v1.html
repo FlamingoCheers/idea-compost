@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Compost 思想堆肥 · 视觉设计稿 v1.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F4EE; --surface:#FCFBF8; --ink:#28241F; --ink2:#6E675C; --ink3:#A29A8B;
+  --clay:#C05B3A; --clay-deep:#9E4A2E; --clay-soft:#F4E5DC;
+  --moss:#5F7351; --moss-deep:#4A5B3F; --moss-soft:#E9EDE2;
+  --line:#E5DFD3; --sand:#EDE8DC; --amber:#B98A3D; --amber-soft:#F5EBD7;
+  --shadow:0 1px 2px rgba(40,30,20,.04),0 10px 30px rgba(40,30,20,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#EFEDE6;color:var(--ink);font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.serif{font-family:"Noto Serif SC","Songti SC",Georgia,serif}
+.page{max-width:1280px;margin:0 auto;padding:0 28px 80px}
+/* ---------- 顶部 ---------- */
+.masthead{padding:44px 0 8px}
+.masthead .brand{display:flex;align-items:center;gap:14px}
+.masthead .logo{width:44px;height:44px;border-radius:14px;background:var(--clay);display:grid;place-items:center;color:#fff}
+.masthead h1{font-family:"Noto Serif SC",serif;font-size:26px;font-weight:700;letter-spacing:.02em}
+.masthead .sub{color:var(--ink2);font-size:13px;margin-top:2px}
+.tags{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tag{font-size:12px;color:var(--moss-deep);background:var(--moss-soft);border-radius:999px;padding:4px 12px}
+/* ---------- 导航 ---------- */
+.nav{position:sticky;top:0;z-index:50;background:rgba(239,237,230,.92);backdrop-filter:blur(8px);display:flex;gap:6px;overflow-x:auto;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:40px}
+.nav button{flex-shrink:0;border:1px solid var(--line);background:var(--surface);color:var(--ink2);font-size:13.5px;padding:8px 16px;border-radius:999px;cursor:pointer;font-family:inherit;transition:all .18s ease}
+.nav button.on{background:var(--ink);border-color:var(--ink);color:#F6F4EE}
+/* ---------- 舞台布局 ---------- */
+.stage{display:none;animation:fadein .35s ease}
+.stage.active{display:flex;flex-wrap:wrap;gap:36px;justify-content:center;align-items:flex-start}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sec-title{width:100%;text-align:center;font-family:"Noto Serif SC",serif;font-size:20px;margin:6px 0 2px}
+.sec-sub{width:100%;text-align:center;color:var(--ink2);font-size:13px;margin-bottom:26px}
+/* ---------- 手机框 ---------- */
+.phone{width:392px;background:#DAD5C8;border-radius:38px;padding:12px;box-shadow:var(--shadow);flex-shrink:0}
+.screen{background:var(--paper);border-radius:28px;overflow:hidden;position:relative;min-height:760px;display:flex;flex-direction:column}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 6px;font-size:12.5px;color:var(--ink2);font-weight:500}
+.statusbar .right{display:flex;gap:5px;align-items:center}
+.statusbar svg{display:block}
+/* ---------- 通用组件 ---------- */
+.appbar{display:flex;justify-content:space-between;align-items:center;padding:10px 22px 14px}
+.appbar .wordmark{font-family:"Noto Serif SC",serif;font-weight:700;font-size:17px}
+.appbar .wordmark small{display:block;font-family:"Noto Sans SC",sans-serif;font-weight:400;font-size:9.5px;color:var(--ink3);letter-spacing:.14em;margin-top:1px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--moss);color:#fff;display:grid;place-items:center;font-size:14px;font-family:"Noto Serif SC",serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer;transition:all .18s ease;padding:13px 22px}
+.btn-primary{background:var(--clay);color:#fff}
+.btn-primary:hover{background:var(--clay-deep)}
+.btn-secondary{background:var(--moss);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink2);padding:9px 16px;font-size:13px;border-radius:11px}
+.btn-ghost:hover{border-color:var(--ink3);color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--ink2);background:var(--surface)}
+.chip.moss{background:var(--moss-soft);border-color:transparent;color:var(--moss-deep)}
+.chip.clay{background:var(--clay-soft);border-color:transparent;color:var(--clay-deep)}
+.chip.amber{background:var(--amber-soft);border-color:transparent;color:var(--amber)}
+.label{font-size:12px;letter-spacing:.08em;color:var(--ink3);font-weight:500}
+.divider{height:1px;background:var(--line);margin:20px 0}
+/* ---------- 设计注 ---------- */
+.notes{max-width:300px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 22px 18px}
+.notes h4{font-family:"Noto Serif SC",serif;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.notes h4::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--clay)}
+.notes ul{list-style:none}
+.notes li{font-size:12.5px;color:var(--ink2);line-height:1.75;padding-left:14px;position:relative}
+.notes li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1.5px;background:var(--ink3)}
+/* ---------- 设计系统 ---------- */
+.ds-grid{display:flex;flex-wrap:wrap;gap:36px;justify-content:center;align-items:flex-start;width:100%}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px}
+.panel h3{font-family:"Noto Serif SC",serif;font-size:16px;margin-bottom:18px}
+.swatches{display:grid;grid-template-columns:repeat(4,96px);gap:14px}
+.sw{border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.sw .c{height:56px}
+.sw .t{padding:8px 10px;font-size:11px;color:var(--ink2);line-height:1.5;background:var(--surface)}
+.sw .t b{display:block;color:var(--ink);font-size:12px}
+.type-row{display:flex;align-items:baseline;gap:18px;padding:14px 0;border-bottom:1px dashed var(--line)}
+.type-row:last-child{border-bottom:none}
+.type-row .demo{min-width:230px}
+.type-row .spec{font-size:11.5px;color:var(--ink3);line-height:1.6}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.icon-grid{display:flex;gap:22px;flex-wrap:wrap}
+.icon-cell{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:var(--ink2)}
+.icon-cell .ic{width:46px;height:46px;border-radius:14px;background:var(--paper);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
+.themes{display:flex;gap:14px;flex-wrap:wrap}
+.theme-card{width:104px;height:140px;border-radius:12px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--line)}
+.theme-card .tt{font-size:13px;font-weight:700;line-height:1.35}
+.theme-card .tb{font-size:9px;color:inherit;opacity:.7}
+.theme-card .nm{font-size:10px;opacity:.65;margin-top:6px}
+/* ---------- 页脚 ---------- */
+.footer{margin-top:56px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px 30px}
+.footer h3{font-family:"Noto Serif SC",serif;font-size:16px;margin-bottom:12px}
+.footer ol{margin-left:18px}
+.footer li{font-size:13px;color:var(--ink2);line-height:2}
+</style>
+<style>
+/* ---------- 首启选菌 ---------- */
+.ob-head{padding:26px 26px 8px;text-align:center}
+.ob-head h2{font-family:"Noto Serif SC",serif;font-size:23px;font-weight:700;line-height:1.4}
+.ob-head p{font-size:12.5px;color:var(--ink2);line-height:1.8;margin-top:8px}
+.ob-list{padding:14px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.flora{display:flex;gap:13px;align-items:center;padding:13px 14px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;transition:all .18s ease}
+.flora:hover{border-color:var(--ink3)}
+.flora.on{border-color:var(--clay);background:var(--clay-soft)}
+.flora .seal{width:42px;height:42px;border-radius:13px;background:var(--moss-soft);color:var(--moss-deep);display:grid;place-items:center;font-family:"Noto Serif SC",serif;font-size:19px;font-weight:700;flex-shrink:0}
+.flora.on .seal{background:var(--clay);color:#fff}
+.flora .fi{flex:1;min-width:0}
+.flora .fn{font-family:"Noto Serif SC",serif;font-size:15px;font-weight:600}
+.flora .fd{font-size:11.5px;color:var(--ink2);margin-top:2px;line-height:1.5}
+.flora .ck{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0;display:grid;place-items:center;color:transparent;transition:all .18s}
+.flora.on .ck{background:var(--clay);border-color:var(--clay);color:#fff}
+.flora.on .ck::after{content:"✓";font-size:13px;font-weight:700;line-height:1}
+.ob-foot{padding:6px 20px 22px;background:linear-gradient(to top,var(--paper) 70%,transparent)}
+.ob-note{font-size:11px;color:var(--ink3);text-align:center;line-height:1.7;padding:0 26px 12px}
+.ob-bar{display:flex;align-items:center;gap:14px}
+.ob-bar .cnt{font-size:12.5px;color:var(--ink2);white-space:nowrap}
+.ob-bar .btn{flex:1}
+/* ---------- 首页 ---------- */
+.home-prompt{padding:18px 22px 4px}
+.home-prompt h2{font-family:"Noto Serif SC",serif;font-size:23px;font-weight:700;line-height:1.45}
+.home-prompt h2 em{font-style:normal;color:var(--clay)}
+.input-card{margin:16px 22px 0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 16px 12px;box-shadow:var(--shadow)}
+.input-card textarea{width:100%;border:none;outline:none;resize:none;background:transparent;font-family:inherit;font-size:14.5px;line-height:1.7;color:var(--ink);min-height:56px}
+.input-card textarea::placeholder{color:var(--ink3)}
+.input-tools{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.input-tools .left{display:flex;gap:8px}
+.recent{padding:22px 22px 0;display:flex;justify-content:space-between;align-items:baseline}
+.recent .rt{font-family:"Noto Serif SC",serif;font-size:15px;font-weight:600}
+.masonry{padding:14px 22px 96px;columns:2;column-gap:12px}
+.crumb{break-inside:avoid;margin-bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;cursor:pointer;transition:all .18s}
+.crumb:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.crumb .ctx{font-size:13.5px;line-height:1.7;color:var(--ink)}
+.crumb .ctx.serif{font-family:"Noto Serif SC",serif}
+.crumb .cfoot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.crumb .ct{font-size:10.5px;color:var(--ink3)}
+.badge{font-size:10px;border-radius:999px;padding:3px 8px}
+.badge.done{background:var(--moss-soft);color:var(--moss-deep)}
+.badge.todo{background:var(--sand);color:var(--ink3)}
+.crumb .ctopic{margin-bottom:8px}
+.bottombar{position:absolute;bottom:0;left:0;right:0;background:rgba(252,251,248,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:10px 0 20px}
+.bb-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--ink3);cursor:pointer}
+.bb-item.on{color:var(--clay)}
+/* ---------- 堆肥设置 ---------- */
+.st-head{padding:22px 24px 6px}
+.st-head h2{font-family:"Noto Serif SC",serif;font-size:21px;font-weight:700}
+.st-block{padding:16px 24px 0}
+.st-block .bh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.st-block .bh .bt{font-size:13px;font-weight:600}
+.crumbsel{display:flex;gap:8px;flex-wrap:wrap}
+.pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pb{border:1.5px solid var(--line);border-radius:15px;background:var(--surface);padding:13px 14px;cursor:pointer;transition:all .18s}
+.pb:hover{border-color:var(--ink3)}
+.pb.on{border-color:var(--moss);background:var(--moss-soft)}
+.pb .pn{font-family:"Noto Serif SC",serif;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.pb .pd{font-size:11px;color:var(--ink2);margin-top:4px;line-height:1.55}
+.pb .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:transparent;font-size:10px}
+.pb.on .dot{background:var(--moss);border-color:var(--moss);color:#fff}
+.pb.on .dot::after{content:"✓";font-size:11px;font-weight:700;line-height:1}
+.seg{display:flex;background:var(--sand);border-radius:13px;padding:4px;gap:4px}
+.seg div{flex:1;text-align:center;padding:9px 4px;border-radius:10px;font-size:12.5px;color:var(--ink2);cursor:pointer;transition:all .18s}
+.seg div.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(40,30,20,.08)}
+.seg small{display:block;font-size:9.5px;color:var(--ink3);margin-top:2px}
+.st-foot{margin-top:auto;padding:20px 24px 26px}
+.cost{font-size:11px;color:var(--ink3);text-align:center;margin-top:10px}
+/* ---------- 等待页 ---------- */
+.wait-body{flex:1;display:flex;flex-direction:column;align-items:center;padding-top:10px}
+.steps{display:flex;align-items:flex-start;justify-content:center;padding:12px 18px 0;width:100%}
+.stepwrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.stepdot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;color:#fff}
+.stepdot.done{background:var(--moss)}
+.stepdot.act{background:var(--clay);animation:pulse 2.2s ease-in-out infinite}
+.stepdot.todo{background:var(--sand);color:var(--ink3)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,91,58,.35)}55%{box-shadow:0 0 0 9px rgba(192,91,58,0)}}
+.steplbl{font-size:10.5px;color:var(--ink3)}
+.stepwrap.on .steplbl{color:var(--clay);font-weight:600}
+.stepbar{width:22px;height:2px;background:var(--line);margin-top:12px}
+.stepbar.done{background:var(--moss)}
+.dig-scene{position:relative;width:230px;height:210px;margin:14px auto 4px}
+.mound{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:176px;height:66px;border-radius:50% 50% 40% 40%/100% 100% 26% 26%;background:radial-gradient(ellipse at 42% 28%,#DCD3BC,#CBBDA0 58%,#B7A886)}
+.mound::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(circle at 22% 46%,#a4936f 1.6px,transparent 2px),radial-gradient(circle at 55% 30%,#a4936f 1.3px,transparent 1.7px),radial-gradient(circle at 78% 55%,#9c8b68 1.5px,transparent 2px),radial-gradient(circle at 38% 70%,#8f7f5f 1.4px,transparent 1.9px);opacity:.8}
+.shovel{position:absolute;left:50%;top:30px;margin-left:-23px;transform-origin:23px 8px;animation:dig 2.6s ease-in-out infinite}
+@keyframes dig{0%,100%{transform:rotate(16deg)}30%{transform:rotate(-20deg)}44%{transform:rotate(-20deg) translateY(4px)}62%{transform:rotate(-6deg) translateY(0)}}
+.bub{position:absolute;bottom:74px;width:11px;height:11px;border-radius:50%;background:rgba(95,115,81,.22);border:1.2px solid rgba(95,115,81,.45);animation:rise 3.2s ease-out infinite}
+.bub.b1{left:calc(50% - 58px);animation-delay:0s}
+.bub.b2{left:calc(50% - 30px);width:8px;height:8px;animation-delay:.7s}
+.bub.b3{left:calc(50% + 6px);animation-delay:1.3s;width:14px;height:14px}
+.bub.b4{left:calc(50% + 38px);animation-delay:2s;width:7px;height:7px}
+.bub.b5{left:calc(50% - 74px);animation-delay:2.5s;width:6px;height:6px}
+.bub.b6{left:calc(50% + 60px);animation-delay:1s;width:9px;height:9px}
+@keyframes rise{0%{transform:translateY(0) scale(.5);opacity:0}18%{opacity:.95}100%{transform:translateY(-96px) scale(1.15);opacity:0}}
+.sprout{position:absolute;bottom:64px;left:calc(50% + 56px);transform-origin:bottom center;animation:sway 2.8s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+.wait-copy{text-align:center;padding:4px 30px 0}
+.wait-copy h3{font-family:"Noto Serif SC",serif;font-size:21px;font-weight:700;letter-spacing:.06em}
+.wait-copy p{font-size:12px;color:var(--ink2);line-height:1.8;margin-top:8px}
+.narr{margin-top:16px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--moss-deep);background:var(--moss-soft);border-radius:12px;padding:10px 16px;width:fit-content;max-width:300px;text-align:center;line-height:1.6}
+.narr .nd{width:6px;height:6px;border-radius:50%;background:var(--moss);flex-shrink:0;animation:pulse2 1.4s infinite}
+@keyframes pulse2{0%,100%{opacity:.3}50%{opacity:1}}
+.wait-meta{margin-top:14px;font-size:11.5px;color:var(--ink3);display:flex;gap:10px;align-items:center}
+.wait-meta .sep{width:3px;height:3px;border-radius:50%;background:var(--ink3)}
+.pause{margin-top:auto;margin-bottom:22px;font-size:11.5px;color:var(--ink3);background:none;border:none;text-decoration:underline dotted;font-family:inherit;cursor:pointer}
+/* ---------- 产物 ---------- */
+.out-head{padding:12px 24px 0;display:flex;justify-content:space-between;align-items:center}
+.out-head .back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);cursor:pointer}
+.out-chips{display:flex;gap:8px;padding:14px 24px 0;flex-wrap:wrap}
+.out-title{padding:12px 24px 0;font-family:"Noto Serif SC",serif;font-size:22px;font-weight:700;line-height:1.5}
+.out-body{padding:8px 24px 110px;overflow-y:auto}
+.osec{margin-top:22px}
+.osec .oh{display:flex;align-items:center;gap:8px;font-family:"Noto Serif SC",serif;font-size:14.5px;font-weight:700;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.osec .ob{margin-top:10px;font-size:13px;line-height:1.85;color:var(--ink)}
+.osec .ob .hl{background:linear-gradient(transparent 62%,var(--amber-soft) 62%)}
+.idea-item{margin-bottom:12px}
+.idea-item .txt{font-size:13.5px;line-height:1.85;font-family:"Noto Serif SC",serif}
+.conf{display:inline-block;font-size:10px;border-radius:6px;padding:2px 7px;margin-left:8px;vertical-align:2px}
+.conf.c1{background:var(--amber-soft);color:var(--amber)}
+.conf.c2{background:var(--moss-soft);color:var(--moss-deep)}
+.link-item{display:flex;gap:10px;font-size:12.5px;line-height:1.75;color:var(--ink2)}
+.link-item .kn{flex-shrink:0;width:34px;height:22px;border-radius:7px;background:var(--sand);color:var(--ink2);display:grid;place-items:center;font-size:10.5px;margin-top:2px}
+.objection{background:var(--clay-soft);border-left:3px solid var(--clay);border-radius:0 12px 12px 0;padding:13px 15px;font-size:13px;line-height:1.8;color:var(--ink)}
+.objection .by{display:block;margin-top:8px;font-size:11px;color:var(--clay-deep)}
+.agents-row{display:flex;gap:8px;flex-wrap:wrap}
+.ag{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:11.5px}
+.ag .nu{color:var(--moss-deep);font-weight:600;font-size:10.5px}
+.crumbs-row{display:flex;gap:8px;flex-wrap:wrap}
+.more{margin-top:20px;text-align:center;font-size:11px;color:var(--ink3)}
+.fbbar{position:absolute;bottom:0;left:0;right:0;background:rgba(252,251,248,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:12px 16px 22px;display:flex;gap:8px}
+.fb{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 2px;font-size:11px;color:var(--ink2);cursor:pointer;font-family:inherit;text-align:center;line-height:1.5;transition:all .18s}
+.fb:hover{border-color:var(--clay);color:var(--clay-deep);background:var(--clay-soft)}
+.fb b{display:block;font-size:15px;font-weight:400}
+</style>
+
+</head>
+<body>
+<div class="page">
+  <div class="masthead">
+    <div class="brand">
+      <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13C12 8.5 8.8 5.5 4.5 5.5c0 4.5 3.2 7.5 7.5 7.5z"/><path d="M12 11c0-3.6 2.4-6 6-6 0 3.6-2.4 6-6 6z"/></svg></div>
+      <div>
+        <h1>Idea Compost · 思想堆肥</h1>
+        <div class="sub">视觉设计稿 v1.1 · 简约 · 人文 · 自然（暖纸色 / 陶土 / 苔绿 / 衬线标题）</div>
+      </div>
+    </div>
+    <div class="tags"><span class="tag">纯本地 Agent APP</span><span class="tag">云端仅推理</span><span class="tag">五屏一系统</span><span class="tag">v1.1 · 评审已确认</span></div>
+  </div>
+  <div class="nav" id="nav">
+    <button class="on" data-t="ds">设计系统</button>
+    <button data-t="onboard">首启 · 选菌域</button>
+    <button data-t="home">首页 · 面包渣</button>
+    <button data-t="setup">堆肥设置</button>
+    <button data-t="wait">堆肥进行时</button>
+    <button data-t="output">产物阅读</button>
+  </div>
+
+  <section class="stage active" id="ds">
+    <div class="sec-title serif">设计系统 · Design Tokens</div>
+    <div class="sec-sub">整个产品只有三个彩色主角：陶土（行动）、苔绿（生态）、琥珀（不确定）——其余全是纸与墨。</div>
+    <div class="ds-grid">
+      <div class="panel" style="width:460px">
+        <h3>色板 · 只有三个彩色主角</h3>
+        <div class="swatches">
+          <div class="sw"><div class="c" style="background:#C05B3A"></div><div class="t"><b>陶土 Clay</b>#C05B3A · 行动</div></div>
+          <div class="sw"><div class="c" style="background:#5F7351"></div><div class="t"><b>苔绿 Moss</b>#5F7351 · 生态</div></div>
+          <div class="sw"><div class="c" style="background:#B98A3D"></div><div class="t"><b>琥珀 Amber</b>#B98A3D · 不确定</div></div>
+          <div class="sw"><div class="c" style="background:#28241F"></div><div class="t"><b>墨 Ink</b>#28241F · 文字</div></div>
+          <div class="sw"><div class="c" style="background:#F6F4EE;border-bottom:1px solid #eee"></div><div class="t"><b>纸白 Paper</b>#F6F4EE · 底色</div></div>
+          <div class="sw"><div class="c" style="background:#FCFBF8;border-bottom:1px solid #eee"></div><div class="t"><b>暖白 Surface</b>#FCFBF8 · 卡面</div></div>
+          <div class="sw"><div class="c" style="background:#E5DFD3"></div><div class="t"><b>沙线 Line</b>#E5DFD3 · 分隔</div></div>
+          <div class="sw"><div class="c" style="background:#EDE8DC"></div><div class="t"><b>沙 Sand</b>#EDE8DC · 未激活</div></div>
+        </div>
+      </div>
+      <div class="panel" style="width:460px">
+        <h3>字体 · 衬线标题 × 无衬线正文</h3>
+        <div class="type-row"><div class="demo serif" style="font-size:22px;font-weight:700">思想需要时间发酵</div><div class="spec">Noto Serif SC Bold<br>22-24px · 屏幕标题/金句</div></div>
+        <div class="type-row"><div class="demo serif" style="font-size:16px;font-weight:600">正在形成的判断</div><div class="spec">Noto Serif SC SemiBold<br>15-16px · 区块标题</div></div>
+        <div class="type-row"><div class="demo" style="font-size:14px">把一个念头随手丢进来，它会成为一颗思想的种子。</div><div class="spec">Noto Sans SC Regular<br>13-14.5px · 正文</div></div>
+        <div class="type-row"><div class="demo" style="font-size:12px;color:#6E675C">辅助说明与时间戳使用灰褐次级色</div><div class="spec">Noto Sans SC<br>11-12.5px · 说明文字</div></div>
+      </div>
+      <div class="panel" style="width:460px">
+        <h3>按钮与图标</h3>
+        <div class="btn-row" style="margin-bottom:20px">
+          <button class="btn btn-primary">丢进去</button>
+          <button class="btn btn-secondary">开始堆肥</button>
+          <button class="btn btn-ghost">导出卡片</button>
+        </div>
+        <div class="icon-grid">
+          <div class="icon-cell"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--moss)"><circle cx="7" cy="8" r="2.2"/><circle cx="14.5" cy="12" r="1.7"/><circle cx="9" cy="17" r="1.4"/><circle cx="16" cy="18.5" r="1.1"/></svg></div>面包渣</div>
+          <div class="icon-cell"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--clay)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13C12 8.5 8.8 5.5 4.5 5.5c0 4.5 3.2 7.5 7.5 7.5z"/><path d="M12 11c0-3.6 2.4-6 6-6 0 3.6-2.4 6-6 6z"/></svg></div>堆肥</div>
+          <div class="icon-cell"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9.5h18"/><path d="M3 15h18"/><circle cx="7" cy="9.5" r="1.6" fill="var(--moss)" stroke="none"/><circle cx="15" cy="15" r="1.6" fill="var(--clay)" stroke="none"/></svg></div>菌床</div>
+          <div class="icon-cell"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5l7 7"/><path d="M3.5 20.5l8.5-8.5"/><path d="M14 8l-4.5 4.5a4.2 4.2 0 0 0 6 0L20 8a4.2 4.2 0 0 0-6 0z" transform="translate(-2,2)"/></svg></div>园丁</div>
+          <div class="icon-cell"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--moss-deep)" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 1 1-12 0C6 9.5 12 3 12 3z"/></svg></div>益生菌</div>
+          <div class="icon-cell"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 10 11 5 19 5c0 8-5 14-14 14z"/><path d="M5 19c3-6 7-9 10-10"/></svg></div>洞察</div>
+        </div>
+      </div>
+      <div class="panel" style="width:460px">
+        <h3>五种内置卡片主题（导出视觉）</h3>
+        <div class="themes">
+          <div class="theme-card" style="background:#FCFBF8"><div class="tt serif">简约</div><div class="tb">大留白 · 细线</div><div class="nm">默认</div></div>
+          <div class="theme-card" style="background:radial-gradient(ellipse at 30% 25%,#F7EED6,#EBD9B0);border-color:#C9B88E;position:relative;padding:14px 9px 9px">
+            <div style="position:absolute;inset:4px;border:2px solid #8C2B1E;border-radius:4px;pointer-events:none"></div>
+            <div style="position:absolute;inset:8px;border:1px solid #8C2B1E;border-radius:2px;pointer-events:none"></div>
+            <div style="text-align:center;color:#8C2B1E;font-size:8px;letter-spacing:.32em;font-weight:700">★ ★ ★</div>
+            <div class="tt serif" style="color:#22406B;font-weight:900;letter-spacing:.1em;text-align:center;text-shadow:1px 1px 0 rgba(140,43,30,.28)">美式复古</div>
+            <div style="display:flex;align-items:center;gap:5px"><span style="flex:1;height:2px;background:#8C2B1E"></span><span style="color:#8C2B1E;font-size:9px">✦</span><span style="flex:1;height:1px;background:#8C2B1E;margin-top:1px"></span></div>
+            <div class="tb" style="color:#6B4F2A;text-align:center">西部海报 · 砖红藏青</div>
+            <div class="nm" style="color:#8C2B1E;text-align:center;letter-spacing:.24em;font-weight:700">EST. 1876</div>
+          </div>
+          <div class="theme-card" style="background:#EFE6D4"><div class="tt serif" style="writing-mode:vertical-rl;letter-spacing:.3em">国风复古</div><div class="tb"></div><div class="nm" style="color:#9E4A2E">印章 · 竖排</div></div>
+          <div class="theme-card" style="background:linear-gradient(140deg,#FF6B9D 0%,#FFA94D 28%,#FFD43B 52%,#69DB7C 74%,#4DABF7 100%);border:none;border-radius:22px;position:relative;overflow:hidden">
+            <div style="position:absolute;top:-9px;right:-9px;width:36px;height:36px;border-radius:50%;background:#845EF7;border:3px solid #fff"></div>
+            <div style="position:absolute;bottom:42px;left:-8px;width:26px;height:26px;border-radius:50%;background:#FF922B;border:2.5px solid #fff"></div>
+            <div style="position:absolute;top:40px;left:9px;width:8px;height:8px;border-radius:50%;background:#fff;opacity:.9"></div>
+            <div style="position:absolute;bottom:14px;right:8px;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.8"></div>
+            <div class="tt" style="color:#fff;font-family:'Noto Sans SC',sans-serif;font-weight:800;text-shadow:0 2px 8px rgba(91,33,74,.45)">多巴胺</div>
+            <div class="tb" style="color:#fff;text-shadow:0 1px 4px rgba(91,33,74,.35)">糖果渐变 · 贴纸感</div>
+            <div class="nm" style="color:#fff;font-weight:600;text-shadow:0 1px 3px rgba(91,33,74,.3)">高饱和五色 · 大圆角</div>
+          </div>
+          <div class="theme-card" style="background:repeating-linear-gradient(#FCFBF8,#FCFBF8 11px,#E5DFD3 12px)"><div class="tt" style="font-family:KaiTi,楷体">手写</div><div class="tb" style="font-family:KaiTi,楷体">手账感</div><div class="nm">横线本</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);line-height:1.8;margin-top:14px">v1.1 修订参考：美式复古取 19 世纪西部通缉令海报语汇——双线框、星章、EST 字样、砖红 × 藏青 × 做旧纸色、粗壮衬线（Envato 复古设计风格指南 / 西部海报字体谱系）；多巴胺取「高饱和 + 高明度」糖果色趋势——粉橙黄绿蓝五色渐变、白描边贴纸圆点、超大圆角（Pantone 2023 春夏流行色 / Editor X「多巴胺调色板」趋势报告）。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="onboard">
+    <div class="sec-title serif">首启 · 挑选你的第一批菌域</div>
+    <div class="sec-sub">7 个通用学科菌域，多选（1–7）。未选者沉睡待唤醒，其余菌群在使用中自动生长。</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="right"><svg width="15" height="11" viewBox="0 0 15 11" fill="var(--ink2)"><rect x="0" y="6.5" width="2.4" height="4.5" rx=".8"/><rect x="3.6" y="4.5" width="2.4" height="6.5" rx=".8"/><rect x="7.2" y="2.4" width="2.4" height="8.6" rx=".8"/><rect x="10.8" y="0" width="2.4" height="11" rx=".8"/></svg><svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="17.5" height="9.8" rx="2.6" stroke="var(--ink2)" stroke-width="1.1"/><rect x="2.2" y="2.2" width="11" height="6.6" rx="1.3" fill="var(--ink2)"/><path d="M20 3.6v3.8c1.2-.5 1.7-1.2 1.7-1.9S21.2 4.1 20 3.6z" fill="var(--ink2)"/></svg></span></div>
+    <div class="ob-head">
+      <h2>挑选你的第一批菌域</h2>
+      <p>它们决定了你的菌床最初的生态。<br>没有选中的会沉睡——将来某次堆肥中，它们仍可能被唤醒。</p>
+    </div>
+    <div class="ob-list">
+      <div class="flora on"><div class="seal">哲</div><div class="fi"><div class="fn">哲学菌域</div><div class="fd">存在 · 意义 · 概念的根基</div></div><div class="ck"></div></div>
+      <div class="flora on"><div class="seal">技</div><div class="fi"><div class="fn">技术菌域</div><div class="fd">系统 · 工程 · 工具如何塑造人</div></div><div class="ck"></div></div>
+      <div class="flora"><div class="seal">心</div><div class="fi"><div class="fn">心理学菌域</div><div class="fd">动机 · 认知 · 情绪的机制</div></div><div class="ck"></div></div>
+      <div class="flora"><div class="seal">经</div><div class="fi"><div class="fn">经济学菌域</div><div class="fd">激励 · 交换 · 资源的流动</div></div><div class="ck"></div></div>
+      <div class="flora on"><div class="seal">史</div><div class="fi"><div class="fn">历史菌域</div><div class="fd">时间的纵深 · 过去如何困住现在</div></div><div class="ck"></div></div>
+      <div class="flora"><div class="seal">科</div><div class="fi"><div class="fn">科学菌域</div><div class="fd">实证 · 假说 · 自然世界的规律</div></div><div class="ck"></div></div>
+      <div class="flora"><div class="seal">文</div><div class="fi"><div class="fn">文学菌域</div><div class="fd">叙事 · 隐喻 · 想象的形态</div></div><div class="ck"></div></div>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-note">不确定也没关系——菌床会随着你的使用，自己长出新的菌群。</div>
+      <div class="ob-bar"><span class="cnt">已选 3 / 7</span><button class="btn btn-primary">播下菌种</button></div>
+    </div>
+  </div></div>
+  <div class="notes">
+    <h4>设计注</h4>
+    <ul>
+      <li><b>单字印章</b>：哲/技/心/经/史/科/文——用衬线汉字替代学科图标，人文气质且零绘制成本（v1.1 评审：社会学、认知科学移出首启，改由增殖生成）</li>
+      <li>选中态只有边框与底色变化，不用弹窗与表单感</li>
+      <li>底部文案降低选择焦虑：菌床会自己生长，选错无害</li>
+      <li>「播下菌种」按钮文案与堆肥隐喻一致（不用「完成注册」）</li>
+      <li>此页只在首次启动出现；此后永远可以进去唤醒沉睡菌</li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="stage" id="home">
+    <div class="sec-title serif">首页 · 今天脑子里有什么面包渣？</div>
+    <div class="sec-sub">首屏即输入，无分类无标签；下方为面包渣瀑布流。</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="right"><svg width="15" height="11" viewBox="0 0 15 11" fill="var(--ink2)"><rect x="0" y="6.5" width="2.4" height="4.5" rx=".8"/><rect x="3.6" y="4.5" width="2.4" height="6.5" rx=".8"/><rect x="7.2" y="2.4" width="2.4" height="8.6" rx=".8"/><rect x="10.8" y="0" width="2.4" height="11" rx=".8"/></svg><svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="17.5" height="9.8" rx="2.6" stroke="var(--ink2)" stroke-width="1.1"/><rect x="2.2" y="2.2" width="11" height="6.6" rx="1.3" fill="var(--ink2)"/><path d="M20 3.6v3.8c1.2-.5 1.7-1.2 1.7-1.9S21.2 4.1 20 3.6z" fill="var(--ink2)"/></svg></span></div>
+    <div class="appbar">
+      <div class="wordmark">思想堆肥<small>IDEA COMPOST</small></div>
+      <div class="avatar">Y</div>
+    </div>
+    <div class="home-prompt"><h2>今天，脑子里<br>有什么<em>面包渣</em>？</h2></div>
+    <div class="input-card">
+      <textarea placeholder="想到什么就丢什么，不用完整，不用正确……"></textarea>
+      <div class="input-tools">
+        <div class="left">
+          <button class="btn btn-ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-9 9"/></svg>图片</button>
+          <button class="btn btn-ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7.5A2.5 2.5 0 0 0 6 16h2"/></svg>粘贴</button>
+        </div>
+        <button class="btn btn-primary" style="padding:9px 20px">丢进去</button>
+      </div>
+    </div>
+    <div class="recent"><span class="rt">最近的面包渣</span><span class="label">长按多选 → 堆肥</span></div>
+    <div class="masonry">
+      <div class="crumb"><div class="ctopic"><span class="chip clay">概念 · 存疑</span></div><div class="ctx serif">「信息茧房」这个词，会不会本身就是个懒惰的隐喻？</div><div class="cfoot"><span class="ct">1 小时前</span><span class="badge todo">未发酵</span></div></div>
+      <div class="crumb"><div class="ctx">注意力如果是一种货币，那到底是谁在铸币？</div><div class="cfoot"><span class="ct">昨天</span><span class="badge done">🌱 已发酵</span></div></div>
+      <div class="crumb"><div class="ctx serif">我们讨厌的可能不是算法，而是「被安排」的感觉。</div><div class="cfoot"><span class="ct">3 天前</span><span class="badge done">🌱 已发酵</span></div></div>
+      <div class="crumb"><div class="ctx">跑步到第四十分钟，想法突然自己长出来了——疲惫是不是思维的发酵剂？</div><div class="cfoot"><span class="ct">5 天前</span><span class="badge todo">未发酵</span></div></div>
+      <div class="crumb"><div class="ctx serif">读书时划线的那支笔，其实是在给未来的自己留言。</div><div class="cfoot"><span class="ct">1 周前</span><span class="badge todo">未发酵</span></div></div>
+    </div>
+    <div class="bottombar">
+      <div class="bb-item on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="8" r="2.2"/><circle cx="14.5" cy="12" r="1.7"/><circle cx="9" cy="17" r="1.4"/><circle cx="16" cy="18.5" r="1.1"/></svg>面包渣</div>
+      <div class="bb-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13C12 8.5 8.8 5.5 4.5 5.5c0 4.5 3.2 7.5 7.5 7.5z"/><path d="M12 11c0-3.6 2.4-6 6-6 0 3.6-2.4 6-6 6z"/></svg>堆肥</div>
+    </div>
+  </div></div>
+  <div class="notes">
+    <h4>设计注</h4>
+    <ul>
+      <li><b>零阻力第一屏</b>：打开即输入框，无分类/标签/文件夹；「丢进去」是全屏唯一主按钮</li>
+      <li>引导问句用衬线体——像日记本的扉页题词，不像工具的 placeholder</li>
+      <li>瀑布流双列不等高，卡片高度天然参差——隐喻「碎屑」的不规则</li>
+      <li>只有两个状态徽章：🌱 已发酵 / 未发酵（未发酵是常态，不标灰色警示）</li>
+      <li>底部仅两个一级入口：面包渣 / 堆肥；菌床不占入口，藏在长按与周报里</li>
+      <li>示例面包渣为通用文案，正式版由用户产生</li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="stage" id="setup">
+    <div class="sec-title serif">堆肥设置 · 益生菌与深度</div>
+    <div class="sec-sub">面包渣（已多选）→ 益生菌（≤2）→ 发酵深度 → 点火。</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="right"><svg width="15" height="11" viewBox="0 0 15 11" fill="var(--ink2)"><rect x="0" y="6.5" width="2.4" height="4.5" rx=".8"/><rect x="3.6" y="4.5" width="2.4" height="6.5" rx=".8"/><rect x="7.2" y="2.4" width="2.4" height="8.6" rx=".8"/><rect x="10.8" y="0" width="2.4" height="11" rx=".8"/></svg><svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="17.5" height="9.8" rx="2.6" stroke="var(--ink2)" stroke-width="1.1"/><rect x="2.2" y="2.2" width="11" height="6.6" rx="1.3" fill="var(--ink2)"/><path d="M20 3.6v3.8c1.2-.5 1.7-1.2 1.7-1.9S21.2 4.1 20 3.6z" fill="var(--ink2)"/></svg></span></div>
+    <div class="st-head">
+      <h2>开始一次堆肥</h2>
+      <div class="label" style="margin-top:6px">选好的面包渣将被菌群们一起发酵</div>
+    </div>
+    <div class="st-block">
+      <div class="bh"><span class="bt">🍞 面包渣</span><span class="label">3 / 无上限</span></div>
+      <div class="crumbsel">
+        <span class="chip">「信息茧房」是懒惰的隐喻？ ✕</span>
+        <span class="chip">注意力是一种货币？ ✕</span>
+        <span class="chip">讨厌的不是算法，是被安排 ✕</span>
+      </div>
+    </div>
+    <div class="st-block">
+      <div class="bh"><span class="bt">🦠 思想益生菌</span><span class="label">最多 2 个 · 可不选</span></div>
+      <div class="pb-grid">
+        <div class="pb"><div class="pn">魔鬼代言人 <span class="dot"></span></div><div class="pd">假设你的核心判断是错的，为反方构建最强论证</div></div>
+        <div class="pb"><div class="pn">苏格拉底 <span class="dot"></span></div><div class="pd">不急于回答，不断追问判断成立的前提</div></div>
+        <div class="pb"><div class="pn">反直觉 <span class="dot"></span></div><div class="pd">不接受默认前提，寻找最违反直觉的解释</div></div>
+        <div class="pb"><div class="pn">跨学科 <span class="dot"></span></div><div class="pd">从多个看似无关的学科寻找结构相似性</div></div>
+        <div class="pb"><div class="pn">科研 <span class="dot"></span></div><div class="pd">将直觉转化为研究问题，识别研究空白</div></div>
+        <div class="pb"><div class="pn">哲学 <span class="dot"></span></div><div class="pd">从存在、自由、意义、异化的角度重新审视</div></div>
+      </div>
+    </div>
+    <div class="st-block">
+      <div class="bh"><span class="bt">发酵深度</span><span class="label">影响轮数与时长</span></div>
+      <div class="seg">
+        <div>浅<small>约 3 分钟</small></div>
+        <div class="on">标准<small>约 5 分钟</small></div>
+        <div>深<small>约 10 分钟</small></div>
+      </div>
+    </div>
+    <div class="st-foot">
+      <button class="btn btn-primary" style="width:100%">🔥 开始堆肥</button>
+      <div class="cost">预计消耗约 12 次模型调用 · 可随时中断，产物自动保存</div>
+    </div>
+  </div></div>
+  <div class="notes">
+    <h4>设计注</h4>
+    <ul>
+      <li>三段式自上而下：原料（面包渣）→ 菌种（益生菌）→ 火候（深度）——一个完整的「下厨」动线</li>
+      <li>益生菌卡片用苔绿选中态（与陶土的「立即行动」区分：绿=生态干预，红=点火）</li>
+      <li>益生菌可 0 选（纯园丁调度）可 2 选（组合生效），上限写死在 UI 上</li>
+      <li>底部成本预估是信任设计：调用次数透明，中断无害</li>
+      <li>「🔥 开始堆肥」是全流程情感最高点，允许使用 emoji</li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="stage" id="wait">
+    <div class="sec-title serif">堆肥进行时 · 氧气</div>
+    <div class="sec-sub">等待态的核心叙事：堆肥需要氧气，请保持园丁在前台为你工作。</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="right"><svg width="15" height="11" viewBox="0 0 15 11" fill="var(--ink2)"><rect x="0" y="6.5" width="2.4" height="4.5" rx=".8"/><rect x="3.6" y="4.5" width="2.4" height="6.5" rx=".8"/><rect x="7.2" y="2.4" width="2.4" height="8.6" rx=".8"/><rect x="10.8" y="0" width="2.4" height="11" rx=".8"/></svg><svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="17.5" height="9.8" rx="2.6" stroke="var(--ink2)" stroke-width="1.1"/><rect x="2.2" y="2.2" width="11" height="6.6" rx="1.3" fill="var(--ink2)"/><path d="M20 3.6v3.8c1.2-.5 1.7-1.2 1.7-1.9S21.2 4.1 20 3.6z" fill="var(--ink2)"/></svg></span></div>
+    <div class="wait-body">
+      <div class="steps">
+        <div class="stepwrap"><div class="stepdot done">✓</div><div class="steplbl">识别</div></div><div class="stepbar done"></div>
+        <div class="stepwrap"><div class="stepdot done">✓</div><div class="steplbl">召集</div></div><div class="stepbar done"></div>
+        <div class="stepwrap on"><div class="stepdot act">3</div><div class="steplbl">发酵</div></div><div class="stepbar"></div>
+        <div class="stepwrap"><div class="stepdot todo">4</div><div class="steplbl">整合</div></div><div class="stepbar"></div>
+        <div class="stepwrap"><div class="stepdot todo">5</div><div class="steplbl">反哺</div></div>
+      </div>
+      <div class="dig-scene">
+        <div class="shovel"><svg width="46" height="54" viewBox="0 0 46 54"><rect x="16" y="0" width="14" height="5" rx="2.5" fill="#8F6F4B"/><rect x="20" y="3" width="6" height="22" rx="3" fill="#B08D64"/><rect x="18" y="23" width="10" height="8" fill="#7E8B8C"/><path d="M11 31h24v7c0 8.5-5.4 13-12 13s-12-4.5-12-13z" fill="#8A9490"/><path d="M14 31h5v18c-3.5-2-5-6-5-11z" fill="#9AA5A0" opacity=".7"/></svg></div>
+        <div class="mound"></div>
+        <div class="bub b1"></div><div class="bub b2"></div><div class="bub b3"></div><div class="bub b4"></div><div class="bub b5"></div><div class="bub b6"></div>
+        <div class="sprout"><svg width="26" height="34" viewBox="0 0 26 34" fill="none" stroke="#5F7351" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 34V14"/><path d="M13 20C13 12 8 7 1 7c0 8 5 13 12 13z" fill="#E9EDE2"/><path d="M13 16c0-6.5 4-10 11-10 0 6.5-4 10-11 10z" fill="#E9EDE2"/></svg></div>
+      </div>
+      <div class="wait-copy">
+        <h3>堆肥需要氧气</h3>
+        <p>请保持园丁在前台为你工作——<br>离开后发酵会轻轻暂停，回来时从上次进度继续。</p>
+      </div>
+      <div class="narr" id="narr"><span class="nd"></span><span id="narrtext">概念辨析菌正在拆解「茧房」这个比喻的承重结构……</span></div>
+      <div class="wait-meta"><span id="timer">02:14</span><span class="sep"></span><span>第 2 轮 / 约 4 轮</span><span class="sep"></span><span>6 位菌群在场</span></div>
+      <button class="pause">让发酵暂停一会儿</button>
+    </div>
+  </div></div>
+  <div class="notes">
+    <h4>设计注</h4>
+    <ul>
+      <li><b>氧气隐喻</b>：把「必须保持前台」这个技术限制翻译成自然叙事——堆肥需要氧气，翻堆就是供氧</li>
+      <li>铲子 2.6s 挖翻循环 + 气泡持续上浮（氧气）+ 幼芽轻摆（思想在长）——纯 CSS，无依赖</li>
+      <li>五阶段步进条：识别→召集→发酵（当前，脉冲呼吸）→整合→反哺；每步完成染苔绿</li>
+      <li>动态旁白每 3s 轮换，展示「谁在工作」——菌群在场感是等待的价值感来源</li>
+      <li>暂停入口刻意弱化为下划线文字：可暂停但不鼓励</li>
+      <li>切后台=诚实挂起（停止 LLM 调用），回前台从最近 stage 恢复，进度零丢失</li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="stage" id="output">
+    <div class="sec-title serif">产物阅读 · 思想是怎么长出来的</div>
+    <div class="sec-sub">十节结构（示意其中七节）+ 溯源菌群与面包渣 + 低成本反馈四键。</div>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span class="right"><svg width="15" height="11" viewBox="0 0 15 11" fill="var(--ink2)"><rect x="0" y="6.5" width="2.4" height="4.5" rx=".8"/><rect x="3.6" y="4.5" width="2.4" height="6.5" rx=".8"/><rect x="7.2" y="2.4" width="2.4" height="8.6" rx=".8"/><rect x="10.8" y="0" width="2.4" height="11" rx=".8"/></svg><svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="17.5" height="9.8" rx="2.6" stroke="var(--ink2)" stroke-width="1.1"/><rect x="2.2" y="2.2" width="11" height="6.6" rx="1.3" fill="var(--ink2)"/><path d="M20 3.6v3.8c1.2-.5 1.7-1.2 1.7-1.9S21.2 4.1 20 3.6z" fill="var(--ink2)"/></svg></span></div>
+    <div class="out-head">
+      <div class="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>堆肥</div>
+      <span class="label">08-27 · 保存于堆肥</span>
+    </div>
+    <div class="out-chips">
+      <span class="chip amber">🟡 初步判断</span><span class="chip moss">5 位菌群参与</span><span class="chip">标准发酵 · 2 轮</span>
+    </div>
+    <div class="out-title">（初步）「信息茧房」<br>可能是一个懒惰的隐喻</div>
+    <div class="out-body">
+      <div class="osec"><div class="oh">🌱 核心思想</div>
+        <div class="ob">
+          <div class="idea-item"><span class="txt serif">「茧房」预设了有一个「房」在包裹你——但算法也许更像<span class="hl">风</span>：它不困住你，只持续推着你往某个方向漂。</span><span class="conf c1">初步</span></div>
+          <div class="idea-item"><span class="txt serif">讨厌的根源可能不是信息被筛选，而是<span class="hl">筛选者不是自己</span>。</span><span class="conf c1">初步</span></div>
+        </div>
+      </div>
+      <div class="osec"><div class="oh">🧩 原始碎片之间的联系</div>
+        <div class="ob">
+          <div class="link-item"><span class="kn">①②</span><span>「茧房」与「注意力铸币」共享同一个隐藏前提：存在一个中心化的操纵者。两片面包渣在质疑同一件事。</span></div>
+        </div>
+      </div>
+      <div class="osec"><div class="oh">🔥 可能存在的冲突</div>
+        <div class="ob">「被安排感」与「懒惰的隐喻」两条线索方向相反：前者指向行动（夺回选择权），后者指向放弃概念（不需要夺回，因为本来就没有「房」）。</div>
+      </div>
+      <div class="osec"><div class="oh">👿 最强反方观点</div>
+        <div class="objection">隐喻是否「懒惰」并不重要——它是否<b>有效</b>才重要。「茧房」让千万人在一秒内理解了问题结构，这正是好概念的标准。要求每个隐喻精确，是哲学家的职业病。<span class="by">—— 由魔鬼代言人益生菌指定，反驳菌代为构建</span></div>
+      </div>
+      <div class="osec"><div class="oh">🧠 本次菌群（已获得营养）</div>
+        <div class="agents-row" style="margin-top:10px">
+          <span class="ag">概念辨析菌 <span class="nu">+8</span></span><span class="ag">反驳菌 <span class="nu">+8</span></span><span class="ag">媒介研究菌 <span class="nu">+6</span></span><span class="ag">社会学菌 <span class="nu">+3</span></span><span class="ag">历史菌 <span class="nu">+1</span> <span style="color:var(--amber)">·意外菌</span></span>
+        </div>
+      </div>
+      <div class="osec"><div class="oh">🍞 来源面包渣</div>
+        <div class="crumbs-row" style="margin-top:10px">
+          <span class="chip">① 懒惰的隐喻？</span><span class="chip">② 谁在铸币？</span><span class="chip">③ 讨厌被安排</span>
+        </div>
+      </div>
+      <div class="more">—— 以下还有「正在形成的判断 / 新产生的连接 / 尚未解决的问题 / 可以继续发展的方向」等小节 ——</div>
+    </div>
+    <div class="fbbar">
+      <button class="fb"><b>❤️</b>有启发</button>
+      <button class="fb"><b>⭐</b>值得保留</button>
+      <button class="fb"><b>↗</b>继续发展</button>
+      <button class="fb"><b>?</b>我不同意</button>
+    </div>
+  </div></div>
+  <div class="notes">
+    <h4>设计注</h4>
+    <ul>
+      <li><b>「思想是怎么长出来的」</b>：溯源三件套——标题带置信度、正文高亮关键新概念、末尾菌群与面包渣双向可点</li>
+      <li>置信度徽章直接进 UI：🟡 初步 / 绿 较可靠——把「保留不确定性」做成视觉语言而非口号</li>
+      <li>最强反方永远强制存在，且注明「谁要求的」（益生菌）与「谁说的」（菌群）</li>
+      <li>营养结算 +N 即时可见：用户第一次看见「菌群获得了什么」</li>
+      <li>意外菌用琥珀色标记——异质性配额（70/20/10）在这里向用户透明</li>
+      <li>底部四键反馈：❤️⭐↗? ——轻、快、不打断阅读，全部成为菌床信号</li>
+    </ul>
+  </div>
+  </section>
+
+  <div class="footer">
+    <h3>评审确认记录（v1.1）</h3>
+    <ol>
+      <li>✅ <b>色彩气质</b>：暖纸底 + 陶土/苔绿双主色 + 琥珀警示色 —— 已确认</li>
+      <li>✅ <b>字体方向</b>：衬线中文标题（人文感）+ 无衬线正文 —— 已确认</li>
+      <li>✅ <b>首启文案</b>：叙事口吻已确认；菌域按反馈调整 —— 社会学 → <b>技术</b>、认知科学 → <b>科学</b>（印章：哲/技/心/经/史/科/文）</li>
+      <li>✅ <b>等待页</b>：铲子翻堆 + 气泡（氧气）动画与保活文案 —— 已确认</li>
+      <li>✅ <b>图标风格</b>：细线手绘感 SVG 图标 + 单字印章 —— 已确认</li>
+    </ol>
+    <div style="font-size:12.5px;color:var(--ink2);line-height:1.9;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)">
+      <b>v1.1 修订清单</b>：① 所有选项框（菌域 / 益生菌）选中态统一显示对勾——改为 CSS 绘制，点击切换即时生效；② 美式复古重制为西部通缉令海报语汇；③ 多巴胺重制为高饱和五色糖果渐变 + 贴纸块。
+    </div>
+  </div>
+</div>
+<script>
+const nav=document.getElementById('nav');
+nav.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  nav.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.stage').forEach(s=>s.classList.toggle('active',s.id===b.dataset.t));
+});
+/* 交互 demo：首启选菌计数 */
+document.querySelectorAll('.flora').forEach(f=>{
+  f.addEventListener('click',()=>{
+    f.classList.toggle('on');
+    const n=document.querySelectorAll('.flora.on').length;
+    const cnt=document.querySelector('.ob-bar .cnt');
+    if(cnt)cnt.textContent=`已选 ${n} / 7`;
+  });
+});
+/* 交互 demo：益生菌多选(≤2) */
+document.querySelectorAll('.pb').forEach(p=>{
+  p.addEventListener('click',()=>{
+    if(p.classList.contains('on')){p.classList.remove('on');return;}
+    if(document.querySelectorAll('.pb.on').length>=2)return;
+    p.classList.add('on');
+  });
+});
+/* 交互 demo：发酵深度 */
+document.querySelectorAll('.seg div').forEach(s=>{
+  s.addEventListener('click',()=>{
+    s.parentElement.querySelectorAll('div').forEach(x=>x.classList.toggle('on',x===s));
+  });
+});
+/* 交互 demo：旁白轮换 + 计时器 */
+const narrs=[
+  '概念辨析菌正在拆解「茧房」这个比喻的承重结构……',
+  '反驳菌在为反方准备最强的论证……',
+  '媒介研究菌在检查概念流行的历史路径……',
+  '园丁正在整理菌群们的分歧……',
+  '一个新连接正在发芽……'
+];
+let ni=0,sec=134;
+setInterval(()=>{
+  ni=(ni+1)%narrs.length;
+  const t=document.getElementById('narrtext');
+  if(t){t.style.opacity=0;setTimeout(()=>{t.textContent=narrs[ni];t.style.opacity=1;},260);}
+},3000);
+setInterval(()=>{
+  sec++;
+  const el=document.getElementById('timer');
+  if(el)el.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+},1000);
+</script>
+</body>
+</html>
