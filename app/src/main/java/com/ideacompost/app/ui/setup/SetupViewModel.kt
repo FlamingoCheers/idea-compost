@@ -45,13 +45,53 @@ class SetupViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val ideas = ideaDao.byIds(ideaIds).sortedBy { ideaIds.indexOf(it.id) }
-            val probiotics = probioticDao.observeBuiltIn().first()
             _state.value = _state.value.copy(
                 ideas = ideas,
-                probiotics = probiotics,
                 mockMode = providerStore.mockMode,
                 providerReady = providerStore.ready()
             )
+        }
+        // 益生菌实时观察：内置 + 用户自定义（增删改即时反映）
+        viewModelScope.launch {
+            probioticDao.observeAll().collect { list ->
+                _state.value = _state.value.copy(
+                    probiotics = list,
+                    picked = _state.value.picked.filter { id -> list.any { it.id == id } }
+                )
+            }
+        }
+    }
+
+    /** 新建/编辑自定义益生菌：prompt_logic 由用户描述直接构成思考方向。 */
+    fun upsertProbiotic(id: String?, name: String, description: String) {
+        val n = name.trim(); val d = description.trim()
+        if (n.isEmpty() || d.isEmpty()) return
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            val existing = id?.let { probioticDao.byId(it) }
+            val pb = ProbioticEntity(
+                id = existing?.id ?: "user_${now}",
+                name = if (n.endsWith("益生菌")) n else "${n}益生菌",
+                icon = existing?.icon,
+                description = d,
+                promptLogic = "从以下用户指定的方向审视这批碎片：$d",
+                scope = existing?.scope ?: "user_defined",
+                usageCount = existing?.usageCount ?: 0,
+                lastUsed = existing?.lastUsed,
+                birthContext = existing?.birthContext ?: "用户在堆肥设置中亲手投放",
+                createdAt = existing?.createdAt ?: now,
+                updatedAt = now
+            )
+            probioticDao.upsert(pb)
+        }
+    }
+
+    /** 内置→软删（hidden），自定义→硬删；同步取消已选。 */
+    fun deleteProbiotic(id: String) {
+        viewModelScope.launch {
+            val pb = probioticDao.byId(id) ?: return@launch
+            if (pb.scope == "user_defined") probioticDao.deleteUserDefined(id)
+            else probioticDao.hideBuiltin(id, System.currentTimeMillis())
         }
     }
 
