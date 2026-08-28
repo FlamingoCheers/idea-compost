@@ -67,4 +67,33 @@ interface CompostDao {
     /** 已完成的堆肥——夜间生态任务的共现统计源。 */
     @Query("SELECT * FROM composts WHERE status = 'done' ORDER BY created_at DESC LIMIT 200")
     suspend fun allDone(): List<CompostEntity>
+
+    /* ------- 导入/导出（specs/40）------- */
+
+    @Insert
+    suspend fun insertAllComposts(items: List<CompostEntity>)
+
+    @Insert
+    suspend fun insertAllStages(items: List<CompostStageEntity>)
+
+    @Insert
+    suspend fun insertAllFeedbacks(items: List<FeedbackEventEntity>)
+
+    @Query("SELECT * FROM composts ORDER BY created_at")
+    suspend fun all(): List<CompostEntity>
+
+    @Query("SELECT * FROM compost_stages")
+    suspend fun allStages(): List<CompostStageEntity>
+
+    @Query("SELECT * FROM feedback_events")
+    suspend fun allFeedbacks(): List<FeedbackEventEntity>
+
+    @Query("DELETE FROM composts")
+    suspend fun deleteAllComposts()
+
+    @Query("DELETE FROM compost_stages")
+    suspend fun deleteAllStages()
+
+    @Query("DELETE FROM feedback_events")
+    suspend fun deleteAllFeedbacks()
 }

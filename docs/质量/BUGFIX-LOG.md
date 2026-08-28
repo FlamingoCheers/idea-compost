@@ -67,13 +67,27 @@
 - 修复：AiRouter.kt:118 gist 清洗：去 idea:\d+ 标记与 {}①-⑤（） 等符号后 trim。仅影响演示模式；真实 API 走模型自拟标题不受影响。
 - 验证：run16 截图 08/11 标题干净（「（初步）NoteToSelf-entropy-taste：机制还是叙事」）。
 
+### BUG-013 [P1→已修复] 「测试连接」读取已保存配置而非对话框当前输入
+- 现象：AI 服务商对话框内填好三字段直接点「🔌 测试连接」，VM 校验的是**已保存的** provider（空）→ 永远提示「请先填写接口地址、Key 和模型名」，对话框内新填的值未保存时无法测试。
+- 根因：SettingsViewModel.testConnection() 无参读 _state；对话框本地 remember 字段未传入。
+- 修复：签名改为 testConnection(baseUrl, apiKey, model, onResult)；SettingsScreen onTest 回调传对话框当前值（SettingsScreen.kt:121、574、607）。
+- 验证：假配置 https://fake.local/v1 → ❌ 连接失败：Unable to resolve host "fake.local"（行内显示）；空字段按钮禁用态即引导；llm_calls 表写入 test_connection/error 遥测。
+
+### BUG-014 [P2·测试侧备忘] 冷启动后底部手势排斥区高度不定
+- 现象：emulator-5554 冷启动后 adb input tap 点 y≥2270 的按钮（去堆肥 2302/播下菌种 2255 边缘）间歇无效；同坐标另一时刻有效。上次会话 y=2282 可点，本次 2278/2288/2301 均无效、2255 有效。
+- 根因：系统手势导航排斥区高度随启动状态变化，非 App bug（按钮 clickable/enabled 均正常，同屏其余按钮可点）。
+- 对策：自动化点底部按钮前先 dump 取 bounds，优先 tap y=bounds.top+15；人工使用不受影响（手指按压面积大）。
+
+
 ## 修复记录
 
 - 2026-08-28 BUG-001/002/003/004 关闭：App 侧零改动，全部为测试脚本缺陷（maxY 排除/ESC 丢输入/未聚焦输入/正则不认 emoji 实体）；stage3c.ps1 证据链全通过（头像循环+昵称持久化实测）。
+- 2026-08-28（发布版烟测）BUG-013 修复并验证；BUG-014 登记为测试侧备忘。真 AI 直连路径全链路实测：无 Key 开炉引导 → 假配置 ❌ DNS 报错行内显示 → 发酵中断页（错误详情+重新点火）→ 遥测 test_connection/error 落库。
 
 ## 结论
 
-**审计终版（2026-08-28）**：共登记 12 个缺陷——P0 0 个 / P1 4 个（BUG-001/002 测试侧、BUG-005 已由回归重拍关闭、BUG-009/011 已修复）/ P2 4 个（BUG-003/004 测试侧、BUG-010 已修复、BUG-006 记录备查）/ P3 4 个（BUG-007/008 登记待v0.3、BUG-012 已修复）。
-- **App 真 bug 共 4 个（009/010/011/012），全部修复并经回归验证**；其余 8 个为测试脚本缺陷或已登记的工程决策。
+**审计终版（2026-08-28）**：共登记 14 个缺陷——P0 0 个 / P1 5 个（BUG-001/002 测试侧、BUG-005 已由回归重拍关闭、BUG-009/011/013 已修复）/ P2 5 个（BUG-003/004/014 测试侧、BUG-010 已修复、BUG-006 记录备查）/ P3 4 个（BUG-007/008 登记待v0.3、BUG-012 已修复）。
+- **App 真 bug 共 5 个（009/010/011/012/013），全部修复并经回归验证**；其余 9 个为测试脚本缺陷或已登记的工程决策。
 - 回归验证：full_test.py 36 项断言 36/0 全绿（连续两轮 run15/run16）；截图 14/14 名实相符（design/回归截图/01-14）。
-- 构建产物：app/build/outputs/apk/debug/app-debug.apk + apk/release/app-release.apk（签名 keystore 已配置）。
+- 发布版烟测（演示模式删除后）：9/9 通过——图片 chip 移除 / 瀑布流等高卡片+badge 单行 / 无 Key 开炉引导 / 测试连接（禁用+❌DNS 报错） / 导出 zip（manifest+profile+provider+8 表） / pm clear 后导入全量恢复（昵称·菌群活力·面包渣·堆肥产物） / 捐赠对话框（无图态+放入收款码入口） / 等待页（诚实暂停文案+冥想一句+屏幕常亮） / 真 AI 直连失败链路（发酵中断页+重新点火）。
+- 构建产物：app/build/outputs/apk/debug/app-debug.apk + apk/release/app-release.apk（12.3MB，签名 keystore 已配置）。
