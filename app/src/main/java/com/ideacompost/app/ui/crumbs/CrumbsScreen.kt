@@ -118,7 +118,10 @@ fun CrumbsScreen(
                         .clickable(onClick = onSettings),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Y", color = PaperWarm, style = SerifSection, fontSize = 14.sp)
+                    Text(
+                        remember { vm.profile.avatarEmoji },
+                        color = PaperWarm, fontSize = 17.sp
+                    )
                 }
             }
 

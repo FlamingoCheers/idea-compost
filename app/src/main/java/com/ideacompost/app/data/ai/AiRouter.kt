@@ -124,6 +124,8 @@ class MockLLM : LLMClient {
             "r3" -> round3(agent, gist)
             "integrate" -> integrate(gist)
             "assess" -> assess()
+            "eco_proliferate" -> ecoProliferate(user)
+            "eco_fuse" -> ecoFuse(user)
             else -> "{}"
         }
         android.util.Log.d("MockLLM", "complete($stageKey) end in ${android.os.SystemClock.uptimeMillis() - t0}ms")
@@ -218,5 +220,19 @@ class MockLLM : LLMClient {
             {"agent":"技术菌","score":4.0,"evidence":["fragment_links[0] ← 技术视角"]},
             {"agent":"假说菌","score":3.5,"evidence":["future_directions ← 新假说"]}],
          "ecology_note":"意外菌（历史菌）贡献了关键的历史先例视角——异质性配额生效"}
+    """.trimIndent()
+
+    /** 夜间生态：增殖建议。user 携带父菌档案 + 近期话题。 */
+    private fun ecoProliferate(user: String) = """
+        {"child_name":"机制辨析菌",
+         "child_description":"从父菌分化出的子菌，专注于把日常直觉拆成可检验的机制问题",
+         "rationale":"父菌参与频繁且持续获得营养，讨论反复集中在机制与叙事的分叉上，值得分化出专精方向"}
+    """.trimIndent()
+
+    /** 夜间生态：融合建议。user 携带两菌档案 + 共现证据。 */
+    private fun ecoFuse(user: String) = """
+        {"fused_name":"叙事与机制复合菌",
+         "fused_description":"由两株长期共同参与的菌共生而成，擅长在同一批碎片里同时追踪机制链条与叙事包装",
+         "rationale":"两菌在近期堆肥中持续共现，视角高度互补，融合后可减少重复劳动"}
     """.trimIndent()
 }

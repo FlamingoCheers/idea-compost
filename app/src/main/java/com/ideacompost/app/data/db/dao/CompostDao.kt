@@ -63,4 +63,8 @@ interface CompostDao {
     /** 重试时清空阶段缓存，全部重新发酵（宁多花调用，不留坏中间态）。 */
     @Query("DELETE FROM compost_stages WHERE compost_id = :compostId")
     suspend fun clearStages(compostId: String)
+
+    /** 已完成的堆肥——夜间生态任务的共现统计源。 */
+    @Query("SELECT * FROM composts WHERE status = 'done' ORDER BY created_at DESC LIMIT 200")
+    suspend fun allDone(): List<CompostEntity>
 }

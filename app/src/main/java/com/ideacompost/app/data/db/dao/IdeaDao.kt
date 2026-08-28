@@ -29,4 +29,8 @@ interface IdeaDao {
 
     @Query("SELECT COUNT(*) FROM ideas")
     suspend fun count(): Int
+
+    /** 近期面包渣——菌床唤醒的关键词匹配源。 */
+    @Query("SELECT * FROM ideas WHERE created_at >= :since ORDER BY created_at DESC LIMIT 60")
+    suspend fun recentSince(since: Long): List<IdeaEntity>
 }

@@ -18,6 +18,22 @@ interface AgentDao {
     @Query("SELECT * FROM agents WHERE status IN ('active','embryo','compressed') ORDER BY vitality DESC")
     fun observeActive(): Flow<List<AgentEntity>>
 
+    /** 全部菌（含 dormant/fused）——菌床生态页与夜间任务用。 */
+    @Query("SELECT * FROM agents ORDER BY vitality DESC")
+    fun observeEvery(): Flow<List<AgentEntity>>
+
+    @Query("SELECT * FROM agents")
+    suspend fun all(): List<AgentEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOne(agent: AgentEntity)
+
+    @Query("UPDATE agents SET vitality = :vitality, updated_at = :now WHERE id = :id")
+    suspend fun updateVitality(id: String, vitality: Double, now: Long)
+
+    @Query("UPDATE agents SET compressed_memory = :memory, card_version = card_version + 1, updated_at = :now WHERE id = :id")
+    suspend fun compressMemory(id: String, memory: String, now: Long)
+
     @Query("SELECT * FROM agents WHERE status IN ('active','embryo','compressed')")
     suspend fun convokable(): List<AgentEntity>
 

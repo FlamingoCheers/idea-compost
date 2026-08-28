@@ -25,7 +25,8 @@ data class CrumbsUiState(
 @HiltViewModel
 class CrumbsViewModel @Inject constructor(
     private val ideaDao: IdeaDao,
-    private val bedEventDao: BedEventDao
+    private val bedEventDao: BedEventDao,
+    val profile: com.ideacompost.app.data.ProfileStore
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CrumbsUiState())
