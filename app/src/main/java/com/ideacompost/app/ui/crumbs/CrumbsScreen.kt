@@ -165,8 +165,6 @@ fun CrumbsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    GhostChip("图片")
-                    Spacer(Modifier.width(8.dp))
                     GhostChip("粘贴")
                     Spacer(Modifier.weight(1f))
                     Button(
@@ -318,6 +316,7 @@ private fun CrumbCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height(168.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(PaperWarm)
             .border(
@@ -331,21 +330,31 @@ private fun CrumbCard(
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(14.dp)
     ) {
-        Text(crumb.content, style = SerifBody, color = Ink, maxLines = 12)
-        Spacer(Modifier.height(10.dp))
+        Text(
+            crumb.content,
+            style = SerifBody,
+            color = Ink,
+            maxLines = 6,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            lineHeight = 21.sp
+        )
+        Spacer(Modifier.weight(1f))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(formatTime(crumb.createdAt), style = SansTiny, color = InkFaint)
+            Text(formatTime(crumb.createdAt), style = SansTiny, color = InkFaint, maxLines = 1)
             Spacer(Modifier.weight(1f))
             val composted = crumb.status == "composted"
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(if (composted) MossSoft else Sand)
-                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     if (composted) "🌱 已发酵" else "未发酵",
                     fontSize = 10.sp,
+                    maxLines = 1,
+                    softWrap = false,
                     color = if (composted) MossDeep else InkFaint
                 )
             }

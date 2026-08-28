@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -72,11 +74,17 @@ fun WaitScreen(
     val compost by vm.compost.collectAsState()
     val c = compost
 
+    // 发酵期间保持屏幕常亮（离开本页自动恢复系统默认）
+    val view = LocalView.current
+    DisposableEffect(Unit) {
+        view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
+
     val finished = c?.status == "done" || c?.status == "completed" ||
         c?.status == "awaiting_feedback"
     LaunchedEffect(c?.id) { }
     LaunchedEffect(c?.status) {
-        android.util.Log.d("WaitScreen", "effect status=${c?.status} finished=$finished")
         if (finished) {
             vm.pause()
             onDone(requireNotNull(c?.id))
@@ -119,9 +127,16 @@ fun WaitScreen(
         Text(
             if (failed) (c.error ?: "发生了一点意外。") +
                 "\n这批面包渣还完好，随时可以重新点火。"
-            else "请保持园丁在前台为你工作——\n离开后发酵会轻轻暂停，回来时从上次进度继续。",
+            else "发酵进行时请留在这一页——离开后发酵会暂停，\n重新点火将从头开始。屏幕已为你保持常亮。",
             style = SansNote, color = InkSoft, textAlign = TextAlign.Center, lineHeight = 19.sp
         )
+        if (!failed) {
+            Spacer(Modifier.height(10.dp))
+            Text(
+                "等待的时候，不妨冥想一下，享受安宁。",
+                style = SansTiny, color = InkFaint, textAlign = TextAlign.Center
+            )
+        }
         Spacer(Modifier.height(16.dp))
 
         if (!failed) {
@@ -172,7 +187,7 @@ fun WaitScreen(
             )
         } else {
             Text(
-                "让发酵暂停一会儿",
+                "暂停发酵并离开（重新点火将从头开始）",
                 fontSize = 11.5.sp, color = InkFaint,
                 modifier = Modifier
                     .clickable { vm.pause(); onBack() }
@@ -318,9 +333,9 @@ private fun DigScene(modifier: Modifier = Modifier) {
                 center = Offset(moundCx + (f.x - 0.5f) * moundW, moundCy - f.y * moundH)
             )
         }
-        // 铲子（绕柄顶摆动）
+        // 铲子（绕柄顶摆动；柄顶下移至铲头接触肥堆）
         withTransform({
-            translate(left = moundCx - gripW / 2, top = h * 0.02f)
+            translate(left = moundCx - gripW / 2, top = h * 0.33f)
             rotate(shovelAngle, pivot = Offset(gripW / 2, pivotY))
         }) {
             drawRoundRect(

@@ -32,4 +32,12 @@ interface ProbioticDao {
 
     @Query("SELECT * FROM probiotics WHERE id = :id")
     suspend fun byId(id: String): ProbioticEntity?
+
+    /* ------- 导入/导出（specs/40）------- */
+
+    @Query("SELECT * FROM probiotics ORDER BY created_at, id")
+    suspend fun allIncludingHidden(): List<ProbioticEntity>
+
+    @Query("DELETE FROM probiotics")
+    suspend fun deleteAll()
 }

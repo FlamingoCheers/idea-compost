@@ -11,8 +11,7 @@ class ProviderStore @Inject constructor(private val prefs: SharedPreferences) {
     data class Config(
         val baseUrl: String,
         val apiKey: String,
-        val model: String,
-        val mockMode: Boolean
+        val model: String
     )
 
     var baseUrl: String
@@ -27,11 +26,8 @@ class ProviderStore @Inject constructor(private val prefs: SharedPreferences) {
         get() = prefs.getString("provider_model", "") ?: ""
         set(v) = prefs.edit().putString("provider_model", v).apply()
 
-    var mockMode: Boolean
-        get() = prefs.getBoolean("provider_mock", true)
-        set(v) = prefs.edit().putBoolean("provider_mock", v).apply()
+    fun config(): Config = Config(baseUrl, apiKey, model)
 
-    fun config(): Config = Config(baseUrl, apiKey, model, mockMode)
-
-    fun ready(): Boolean = mockMode || (baseUrl.isNotBlank() && apiKey.isNotBlank() && model.isNotBlank())
+    /** 堆肥必须配置真实 AI 服务商（v0.2 发布版：演示模式已移除）。 */
+    fun ready(): Boolean = baseUrl.isNotBlank() && apiKey.isNotBlank() && model.isNotBlank()
 }

@@ -10,6 +10,15 @@ interface BedEventDao {
     @Insert
     suspend fun insert(event: BedEventEntity)
 
+    @Insert
+    suspend fun insertAll(events: List<BedEventEntity>)
+
     @Query("SELECT COUNT(*) FROM bed_events")
     suspend fun count(): Int
+
+    @Query("SELECT * FROM bed_events ORDER BY seq")
+    suspend fun all(): List<BedEventEntity>
+
+    @Query("DELETE FROM bed_events")
+    suspend fun deleteAll()
 }

@@ -22,8 +22,7 @@ data class SetupUiState(
     val probiotics: List<ProbioticEntity> = emptyList(),
     val picked: List<String> = emptyList(),
     val depth: String = "standard",
-    val mockMode: Boolean = true,
-    val providerReady: Boolean = true,
+    val providerReady: Boolean = false,
     val firing: Boolean = false
 )
 
@@ -47,7 +46,6 @@ class SetupViewModel @Inject constructor(
             val ideas = ideaDao.byIds(ideaIds).sortedBy { ideaIds.indexOf(it.id) }
             _state.value = _state.value.copy(
                 ideas = ideas,
-                mockMode = providerStore.mockMode,
                 providerReady = providerStore.ready()
             )
         }

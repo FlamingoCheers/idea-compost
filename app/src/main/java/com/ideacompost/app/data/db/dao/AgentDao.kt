@@ -54,4 +54,7 @@ interface AgentDao {
 
     @Query("UPDATE agents SET status = :status, vitality = :vitality, updated_at = :updatedAt WHERE id = :id")
     suspend fun updateStatus(id: String, status: String, vitality: Double, updatedAt: Long)
+
+    @Query("DELETE FROM agents")
+    suspend fun deleteAll()
 }

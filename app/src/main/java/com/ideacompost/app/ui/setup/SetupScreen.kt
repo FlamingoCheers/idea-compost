@@ -214,7 +214,7 @@ fun SetupScreen(
         Spacer(Modifier.height(32.dp))
         if (!state.providerReady) {
             Text(
-                "还未配置模型服务（设置 → 模型服务），当前无法点火。",
+                "堆肥需要 AI：请先到「我的 → 设置 → 🧠 AI 服务商」填好接口地址、Key 与模型名（可用测试连接验证）。",
                 fontSize = 12.sp, color = Clay, lineHeight = 18.sp
             )
             Spacer(Modifier.height(10.dp))
@@ -238,10 +238,7 @@ fun SetupScreen(
         }
         Spacer(Modifier.height(10.dp))
         Text(
-            buildString {
-                append("预计消耗约 $estCalls 次模型调用 · 可随时中断，产物自动保存")
-                if (state.mockMode) append("\n演示模式：无需 API Key，产物由本地模拟生成")
-            },
+            "预计消耗约 $estCalls 次模型调用 · 可随时中断，产物自动保存",
             fontSize = 11.sp, color = InkFaint, lineHeight = 17.sp,
             modifier = Modifier.fillMaxWidth(),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
