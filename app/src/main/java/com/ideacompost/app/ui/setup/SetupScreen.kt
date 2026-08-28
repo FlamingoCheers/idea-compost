@@ -287,7 +287,7 @@ private fun ManageProbioticsDialog(
         text = {
             Column {
                 Text(
-                    "内置菌种可删除；自定义菌种可编辑、可删除。删除后不再出现在选项中。",
+                    "内置菌种可隐藏；自定义菌种可编辑、可删除。隐藏或删除后不再出现在选项中。",
                     fontSize = 11.sp, color = InkSoft, lineHeight = 16.sp
                 )
                 Spacer(Modifier.height(10.dp))
@@ -331,7 +331,7 @@ private fun ManageProbioticsDialog(
                                 )
                             }
                             Text(
-                                "删除",
+                                if (custom) "删除" else "隐藏",
                                 fontSize = 12.sp, color = Clay,
                                 modifier = Modifier.clickable { onDelete(pb) }.padding(6.dp)
                             )

@@ -80,7 +80,7 @@ fun AppNavHost(startDestination: String) {
             WaitScreen(
                 onDone = { compostId ->
                     navController.navigate("output/$compostId") {
-                        popUpTo(Routes.WAIT) { inclusive = true }
+                        popUpTo(Routes.CRUMBS)
                     }
                 },
                 onBack = { navController.popBackStack() }

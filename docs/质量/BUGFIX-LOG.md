@@ -42,10 +42,38 @@
 - 现象：WaitScreen.kt:79 有 Log.d("WaitScreen",...) 调试日志；CompostEngine/EcoEngine 亦有多处 Log.d。
 - 决策：release 打包统一靠 ProGuard/R8 移除（或 v0.3 收敛到 BuildConfig.DEBUG 条件），不影响功能，不单独修。
 
+
+### BUG-009 [P1→已修复] 产物页返回落入过期设置页
+- 现象：堆肥完成后自动进入产物页，按返回键落到「堆肥设置页」（携带已过期的一次性参数），再返回才是首页；导航栈语义错误。
+- 根因：AppNavHost.kt wait 路由 onDone 的 popUpTo(WAIT){inclusive=true} 只弹到等待页，产物页压在设置页之上。
+- 修复：AppNavHost.kt:82-84 popUpTo(Routes.CRUMBS)——产物页返回直接回首页。
+- 验证：full_test P8 场景 back→首页断言 PASS（run15/16）。
+
+### BUG-010 [P2→已修复] 管理对话框文案与行为不符（「内置可删除」）
+- 现象：文案写「内置菌种可删除」，实际内置菌执行的是隐藏（数据保留，可恢复）。
+- 根因：M5 文案笔误；行为本身正确（SetupViewModel.deleteProbiotic 分流 deleteUserDefined/hideBuiltin）。
+- 修复：SetupScreen.kt:290 文案改「内置菌种可隐藏；自定义菌种可编辑、可删除」；行内按钮 builtin 显示「隐藏」、custom 显示「删除」。
+- 验证：截图 04-益生菌管理.png 新文案生效；隐藏/删除行为复测 PASS（run15/16 P4/P5）。
+
+### BUG-011 [P1→已修复] 开炉后多选残留，选区条遮挡底栏
+- 现象：面包渣多选后点「去堆肥」，堆肥已开始但首页选中状态未清；返回首页时选区条仍悬浮，遮挡底栏，点「堆肥」tab 误触选区条（run13 P8 失败根因，debug-p8 截图实锤）。
+- 根因：CrumbsScreen.kt 去堆肥 onClick 未调用 exitSelection()。
+- 修复：CrumbsScreen.kt:259-263 onClick 先 vm.exitSelection() 再 onSetup(state.selected.toList())（闭包先读后清，取值安全）。
+- 验证：run15/16 P8 PASS（去堆肥→back→首页无选区条，tab 可正常切换）。
+
+### BUG-012 [P3→已修复] 演示模式产物标题含引擎格式标记乱码
+- 现象：mock 堆肥产物标题出现「idea:0（①}）」等碎片。
+- 根因：MockLLM 标题 gist=用户输入首行原样回显，而引擎传入的首行含「面包渣清单」格式标记。
+- 修复：AiRouter.kt:118 gist 清洗：去 idea:\d+ 标记与 {}①-⑤（） 等符号后 trim。仅影响演示模式；真实 API 走模型自拟标题不受影响。
+- 验证：run16 截图 08/11 标题干净（「（初步）NoteToSelf-entropy-taste：机制还是叙事」）。
+
 ## 修复记录
 
 - 2026-08-28 BUG-001/002/003/004 关闭：App 侧零改动，全部为测试脚本缺陷（maxY 排除/ESC 丢输入/未聚焦输入/正则不认 emoji 实体）；stage3c.ps1 证据链全通过（头像循环+昵称持久化实测）。
 
 ## 结论
 
-（审计完成后填写总表：共 X 个缺陷，P0 x 个 / P1 x 个 / P2 x 个，全部修复后附回归测试结果）
+**审计终版（2026-08-28）**：共登记 12 个缺陷——P0 0 个 / P1 4 个（BUG-001/002 测试侧、BUG-005 已由回归重拍关闭、BUG-009/011 已修复）/ P2 4 个（BUG-003/004 测试侧、BUG-010 已修复、BUG-006 记录备查）/ P3 4 个（BUG-007/008 登记待v0.3、BUG-012 已修复）。
+- **App 真 bug 共 4 个（009/010/011/012），全部修复并经回归验证**；其余 8 个为测试脚本缺陷或已登记的工程决策。
+- 回归验证：full_test.py 36 项断言 36/0 全绿（连续两轮 run15/run16）；截图 14/14 名实相符（design/回归截图/01-14）。
+- 构建产物：app/build/outputs/apk/debug/app-debug.apk + apk/release/app-release.apk（签名 keystore 已配置）。
