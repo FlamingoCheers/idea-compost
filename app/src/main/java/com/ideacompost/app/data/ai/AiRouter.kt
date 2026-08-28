@@ -116,6 +116,9 @@ class MockLLM : LLMClient {
         val t0 = android.os.SystemClock.uptimeMillis()
         think()
         val gist = firstLine(user)
+            .replace(Regex("""idea:\d+"""), "")
+            .replace(Regex("""[{}①②③④⑤（）]"""), "")
+            .trim()
         val agent = agentName(user)
         val r = when (stageKey) {
             "identify" -> identify(gist)

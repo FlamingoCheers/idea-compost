@@ -257,7 +257,10 @@ fun CrumbsScreen(
                 }
                 Spacer(Modifier.weight(1f))
                 Button(
-                    onClick = { onSetup(state.selected.toList()) },
+                    onClick = {
+                        vm.exitSelection()
+                        onSetup(state.selected.toList())
+                    },
                     enabled = state.selected.isNotEmpty(),
                     modifier = Modifier.height(46.dp),
                     shape = RoundedCornerShape(14.dp),
