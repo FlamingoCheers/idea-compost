@@ -81,7 +81,7 @@ fun OutputScreen(
     val nutrition = remember(c.nutritionJson) {
         c.nutritionJson?.let { runCatching { JSONObject(it) }.getOrNull() }
     }
-    val rounds = if (c.depth == "shallow") 2 else 3
+    val rounds = when (c.depth) { "shallow" -> 2; "deep" -> 4; else -> 3 }
     val depthLabel = when (c.depth) {
         "shallow" -> "浅层发酵"
         "deep" -> "深度发酵"
@@ -172,24 +172,10 @@ fun OutputScreen(
             }
         }
 
-        // ⑤ 冲突
+        // ⑤ 冲突（纵向冲突卡：甲/乙上下对垒，适配任意屏宽与文本长度）
         output.optJSONArray("conflicts")?.toObjList()?.takeIf { it.isNotEmpty() }?.let { cs ->
             Section("🔥 可能存在的冲突") {
-                cs.forEach { cf ->
-                    InfoCard(PaperWarm) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Tag(cf.optString("a").take(14), ClaySoft, ClayDeep)
-                            Text(" ⚡ ", fontSize = 12.sp, color = InkFaint)
-                            Tag(cf.optString("b").take(14), ClaySoft, ClayDeep)
-                            Spacer(Modifier.weight(1f))
-                            Text(cf.optString("nature", ""), fontSize = 10.5.sp, color = InkFaint)
-                        }
-                        cf.optString("resolution_hint")?.takeIf { it.isNotBlank() }?.let {
-                            Spacer(Modifier.height(8.dp))
-                            Text("化解线索：$it", fontSize = 12.sp, color = InkSoft, lineHeight = 18.sp)
-                        }
-                    }
-                }
+                cs.forEach { cf -> ConflictCard(cf) }
             }
         }
 
@@ -368,6 +354,64 @@ private fun FbButton(
         Text(label, fontSize = 10.5.sp, color = InkSoft)
     }
 }
+
+@Composable
+private fun ConflictCard(cf: JSONObject) {
+    val a = cleanConflictText(cf.optString("a"))
+    val b = cleanConflictText(cf.optString("b"))
+    val nature = cf.optString("nature").takeIf { it.isNotBlank() }
+    Column(
+        Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, Line, RoundedCornerShape(10.dp))
+            .background(PaperWarm)
+            .padding(12.dp)
+    ) {
+        if (nature != null) {
+            Tag(nature, Sand, InkSoft)
+            Spacer(Modifier.height(9.dp))
+        }
+        ConflictSide("甲", a)
+        if (a.isNotBlank() && b.isNotBlank()) {
+            Row(
+                Modifier.fillMaxWidth().padding(vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(Modifier.weight(1f).height(1.dp).background(Line))
+                Text("  ⚡  ", fontSize = 11.sp, color = InkFaint)
+                Box(Modifier.weight(1f).height(1.dp).background(Line))
+            }
+        }
+        ConflictSide("乙", b)
+        cf.optString("resolution_hint")?.takeIf { it.isNotBlank() }?.let {
+            Spacer(Modifier.height(9.dp))
+            Text("化解线索：$it", fontSize = 12.sp, color = InkSoft, lineHeight = 18.sp)
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+}
+
+@Composable
+private fun ConflictSide(label: String, text: String) {
+    if (text.isBlank()) return
+    Row(verticalAlignment = Alignment.Top) {
+        Box(
+            Modifier.size(20.dp).clip(CircleShape).background(ClaySoft),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(label, fontSize = 10.sp, color = ClayDeep)
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(text, fontSize = 13.sp, color = Ink, lineHeight = 20.sp, modifier = Modifier.weight(1f))
+    }
+}
+
+/** 清理模型泄漏进冲突文本的引用标记（如「idea:2 内部：」），只留自然语言。 */
+private fun cleanConflictText(s: String): String = s
+    .replace(Regex("""(idea|insight|claim)[:：]\d+\s*"""), "")
+    .replace(Regex("""^\s*内部[：:]\s*"""), "")
+    .replace(Regex("""'"""), "")
+    .trim()
 
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {

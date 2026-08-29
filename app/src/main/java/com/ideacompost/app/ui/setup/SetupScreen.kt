@@ -176,7 +176,7 @@ fun SetupScreen(
         }
 
         Spacer(Modifier.height(24.dp))
-        BlockHeader("发酵深度", "影响轮数与时长")
+        BlockHeader("发酵深度", "影响发酵轮数")
         Spacer(Modifier.height(10.dp))
         Row(
             modifier = Modifier
@@ -187,9 +187,9 @@ fun SetupScreen(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             listOf(
-                "shallow" to ("浅" to "约 3 分钟"),
-                "standard" to ("标准" to "约 5 分钟"),
-                "deep" to ("深" to "约 10 分钟")
+                "shallow" to ("浅" to "2 轮"),
+                "standard" to ("标准" to "3 轮"),
+                "deep" to ("深" to "4 轮")
             ).forEach { (key, label) ->
                 val on = state.depth == key
                 Column(

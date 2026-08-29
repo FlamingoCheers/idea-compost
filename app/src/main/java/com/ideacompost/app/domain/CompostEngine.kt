@@ -17,6 +17,7 @@ import org.json.JSONObject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.sync.withPermit
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +34,8 @@ class CompostEngine @Inject constructor(
     private val probioticDao: ProbioticDao,
     private val bedEventDao: BedEventDao,
     private val llm: AiRouter,
-    private val prompts: GardenerPrompts
+    private val prompts: GardenerPrompts,
+    private val progressBus: CompostProgressBus
 ) {
     data class RosterEntry(
         val id: String, val name: String, val code: String,
@@ -111,9 +113,11 @@ class CompostEngine @Inject constructor(
         }
         android.util.Log.d("CompostEngine", "S2 done: ${roster.size} agents")
 
-        // —— S3 发酵 ——
+        // —— S3 发酵（specs/41：同轮并发，硬上限 4；失败重试 2 次后跳过并落库缺席标记） ——
+        // 轮次（03 §6.1 / stages.md S3）：浅 = 轮1+轮3；标准 = 3 轮；深 = 3 轮 + 独立魔鬼代言人轮
         val rounds = when (compost.depth) {
             "shallow" -> listOf("r1", "r3")
+            "deep" -> listOf("r1", "r2", "r3", "r4")
             else -> listOf("r1", "r2", "r3")
         }
         val history = StringBuilder()
@@ -122,23 +126,50 @@ class CompostEngine @Inject constructor(
                 compostDao.updateProgress(compost.id, "running", "ferment_$r", now())
                 android.util.Log.d("CompostEngine", "S3 $r begin")
                 val participants = participantsFor(r, roster)
+                progressBus.update(compost.id, r, 0, participants.size)
+                val sem = kotlinx.coroutines.sync.Semaphore(PARALLELISM)
                 val outputs: List<org.json.JSONObject> = coroutineScope {
-                    val deferreds: List<Deferred<String>> = participants.mapIndexed { idx, agent ->
+                    val deferreds: List<Deferred<org.json.JSONObject>> = participants.mapIndexed { idx, agent ->
                         async {
-                            // 限流缓冲：并行调用错峰启动，避免网关 429（M3）
-                            if (idx > 0) kotlinx.coroutines.delay(idx * 700L)
-                            val sys = agentCapability(agent) + "\n\n" +
-                                    prompts.stage(r)
-                                        .replace("{{agent_name}}", agent.name)
-                                        .replace("{{CODE}}", codeOf(agent))
-                            val user = ctx + history + "\n\n—— 你是 ${agent.name}（短码 ${codeOf(agent)}）——"
-                            llm.complete(r, sys, user)
+                            // 错峰启动（限流缓冲）后受信号量约束，同时最多 PARALLELISM 个在途调用
+                            if (idx > 0) kotlinx.coroutines.delay(idx * 300L)
+                            sem.withPermit {
+                                val sys = agentCapability(agent) + "\n\n" +
+                                        prompts.stage(r)
+                                            .replace("{{agent_name}}", agent.name)
+                                            .replace("{{CODE}}", codeOf(agent))
+                                val user = ctx + history + "\n\n—— 你是 ${agent.name}（短码 ${codeOf(agent)}）——"
+                                var lastErr: Throwable? = null
+                                for (attempt in 0..RETRIES) {
+                                    if (attempt > 0) {
+                                        kotlinx.coroutines.delay((2000L shl (attempt - 1)) + Random.nextLong(800))
+                                    }
+                                    try {
+                                        val raw = llm.complete(r, sys, user)
+                                        val obj = JsonExtractor.extractObject(raw)
+                                        if (obj != null) {
+                                            progressBus.step(compost.id, r)
+                                            return@withPermit obj
+                                        }
+                                        lastErr = IllegalStateException("reply not parsable as JSON object")
+                                    } catch (ce: CancellationException) {
+                                        throw ce
+                                    } catch (t: Throwable) {
+                                        lastErr = t
+                                    }
+                                }
+                                // 重试耗尽：落库缺席标记（整合可如实告知该菌缺席），本轮继续
+                                progressBus.step(compost.id, r)
+                                JSONObject()
+                                    .put("ok", false)
+                                    .put("agent", agent.name)
+                                    .put("error", (lastErr?.message ?: lastErr?.javaClass?.simpleName ?: "unknown").take(200))
+                            }
                         }
                     }
-                    deferreds.map { d -> runCatching { JsonExtractor.extractObject(d.await()) } }
-                        .mapNotNull { it.getOrNull() }
+                    deferreds.map { it.await() }
                 }
-                JSONArray().also { arr -> outputs.forEach { arr.put(it) } }
+                JSONArray().also { a -> outputs.forEach { a.put(it) } }
                     .also { persistStage(compost.id, "ferment_$r", it.toString()) }
             }
             history.append("\n\n—— 轮次 ${r.removePrefix("r")} 输出 ——\n").append(arr.toString())
@@ -299,6 +330,8 @@ class CompostEngine @Inject constructor(
                 val topDomains = roster.filter { it.type == "domain" }.take(2).mapNotNull { agentDaoSync(it.id) }
                 (creatives + topDomains).distinctBy { it.id }
             }
+            // 魔鬼代言人轮：独立的最强反方论证（stages.md 轮 4）
+            "r4" -> agents.filter { it.type == "method" }.ifEmpty { agents }
             else -> agents
         }
     }
@@ -358,6 +391,11 @@ class CompostEngine @Inject constructor(
     private fun now() = System.currentTimeMillis()
 
     companion object {
+        /** specs/41 P2：同轮最大并发调用数。 */
+        const val PARALLELISM = 4
+        /** specs/41 P3：失败重试次数（总尝试 = 1 + RETRIES），耗尽后跳过该菌。 */
+        const val RETRIES = 2
+
         fun newCompost(ideaIds: List<String>, probioticIds: List<String>, depth: String): CompostEntity {
             val now = System.currentTimeMillis()
             return CompostEntity(

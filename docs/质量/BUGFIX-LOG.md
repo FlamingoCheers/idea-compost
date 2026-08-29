@@ -79,6 +79,33 @@
 - 对策：自动化点底部按钮前先 dump 取 bounds，优先 tap y=bounds.top+15；人工使用不受影响（手指按压面积大）。
 
 
+
+### BUG-015 [P1·已修复] 冲突节横向排版灾难 + idea:N 标记泄漏
+- 现象（用户真机截图）：冲突以两个 take(14) 截断 chip 横排（「idea:2 内部：人类'迫不」⚡「idea:2 内部：'很多人喜」），长文本被挤成竖排单字瀑布，小屏不可读；模型把引用标记写进了冲突文本。
+- 修复：OutputScreen 冲突节重做为纵向 ConflictCard——nature 标签、甲/乙两方上下对垒（20dp 圆徽 + weight(1f) 多行文本）、居中 ⚡ 分隔线、化解线索；cleanConflictText 剥离 idea:/insight:/claim: 标记与「内部：」前缀。适配任意屏宽与文本长度。
+- 验证：fake server 产物故意携带「idea:0 内部：」前缀，产物页渲染为清洗后的自然语言（截图 25-v03冲突卡.png）。
+
+### BUG-016 [P1·已修复] S3 发酵无并发上限、失败静默丢弃
+- 现象：S3 已是 async 扇出（700ms 错峰）但无并发上限（7 菌全开易触发供应商限流）；调用失败被 mapNotNull 静默吞掉（无重试、无记录、整合不知情）。
+- 修复（specs/41）：Semaphore(4) 硬上限 + 完成补位；失败重试 2 次（指数退避 2s/4s + 抖动）后落库 {"ok":false,"agent","error"} 缺席标记，本轮继续；逐菌进度经 CompostProgressBus 上报，等待页显示「第 n 轮 · x/y 菌已归位」。
+- 验证（fake OpenAI + adb reverse）：r1 四菌错峰并发、第 5 菌在任一完成 200ms 内补位；注入 6×500 后第 7 次（第 3 次引擎尝试）成功；另一菌 9×500 后跳过、轮次照常完成；fake_server.log 全程留痕。
+
+### BUG-017 [P2·已修复] deep 深度与 standard 实现完全相同
+- 现象：引擎 rounds 只区分 shallow（2 轮），standard 与 deep 同为 r1-r3；设计文档（03 §6.1/stages.md）明确深模式=标准 3 轮+独立魔鬼代言人轮；等待页却按 deep=4 轮提示。
+- 修复：deep = r1,r2,r3,r4；新增「轮 4 · 魔鬼代言人」阶段 prompt（participantsFor(r4)=method 菌）；SetupScreen 深度选项改为轮数（2/3/4 轮），时长估计删除（用户实测中度 20 分钟与旧提示不符）；等待页轮数按深度精确映射（r 编号是 prompt 标识非序号，浅度 r3 显示为「第 2 轮」）。
+- 验证：standard 全程 r1/r2/r3 无 r4；setup 页显示 2 轮/3 轮/4 轮。
+
+### BUG-018 [P1·已修复] parseStages 轮 4 小节覆盖 r3 prompt
+- 现象：GardenerPrompts.parseStages 只识别「### 轮 1/2/3」，新增轮 4 小节后 sub 停留在 r3，轮 4 的 fence 文本被写入 out["r3"]——标准模式第 3 轮错误使用魔鬼代言人 prompt（首次 fake 验证轮 r3 请求 system 含「发酵轮 4」暴露）。
+- 修复：补 `### 轮 4 -> sub = "r4"` 分支。
+- 验证：重跑全流程，r3 请求正确携带轮 3 prompt，server 判定 r1/r2/r3 序列无误。
+
+### BUG-019 [P2·已修复] cleartext HTTP 被系统拦截
+- 现象：用户填 http:// 本地/内网接口时测试连接报「CLEARTEXT communication not permitted」（Android 9+ 默认禁明文）；v0.2 烟测用的 https 假域名未暴露此问题。
+- 修复：Manifest application 加 usesCleartextTraffic="true"（用户自填自担；主流服务商均为 https）。
+- 验证：http://127.0.0.1:8765（adb reverse）测试连接 ✅「连接成功：模型回复「成功」」。
+
+
 ## 修复记录
 
 - 2026-08-28 BUG-001/002/003/004 关闭：App 侧零改动，全部为测试脚本缺陷（maxY 排除/ESC 丢输入/未聚焦输入/正则不认 emoji 实体）；stage3c.ps1 证据链全通过（头像循环+昵称持久化实测）。
@@ -91,3 +118,10 @@
 - 回归验证：full_test.py 36 项断言 36/0 全绿（连续两轮 run15/run16）；截图 14/14 名实相符（design/回归截图/01-14）。
 - 发布版烟测（演示模式删除后）：9/9 通过——图片 chip 移除 / 瀑布流等高卡片+badge 单行 / 无 Key 开炉引导 / 测试连接（禁用+❌DNS 报错） / 导出 zip（manifest+profile+provider+8 表） / pm clear 后导入全量恢复（昵称·菌群活力·面包渣·堆肥产物） / 捐赠对话框（无图态+放入收款码入口） / 等待页（诚实暂停文案+冥想一句+屏幕常亮） / 真 AI 直连失败链路（发酵中断页+重新点火）。
 - 构建产物：app/build/outputs/apk/debug/app-debug.apk + apk/release/app-release.apk（12.3MB，签名 keystore 已配置）。
+
+## v0.3 回归与发布（2026-08-29）
+
+- 2026-08-29 BUG-015/016/017/018/019 修复并经 fake OpenAI 服务端到端验证（adb reverse tcp:8765）：并行并发 4+补位 / 重试 2 次退避后成功 / 重试耗尽跳过不整轮失败 / 熄屏 12s 发酵续跑（前台服务+进度通知）/ 冲突卡纵向排版+文本清洗 / 轮数提示准确 / 深度=轮数对齐设计 / 本地 http 可连。
+- 输入页三修（用户 P3）：粘贴 chip 移除；未发酵 badge 独占底行（不再与日期同行挤压截断）；日期移至卡片最上方。
+- 捐赠语义修正（用户 P2）：收款码为作者内置只读资产，用户仅可「保存收款码图片」到相册 Pictures/IdeaCompost（MediaStore，实测文件落盘）。
+- 构建产物：versionName 0.3.0 / versionCode 3；debug + release APK。
