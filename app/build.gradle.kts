@@ -1,9 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+}
+
+// 发布签名密钥与密码从 local.properties（不公开）读取；缺失时 release 无法签名（符合预期：签名能力仅限作者本地）
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -20,10 +28,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = rootProject.file("ideacompost-release.keystore")
-            storePassword = "ideacompost2026"
-            keyAlias = "ideacompost"
-            keyPassword = "ideacompost2026"
+            storeFile = rootProject.file(localProps.getProperty("storeFile", "ideacompost-release.keystore"))
+            storePassword = localProps.getProperty("storePassword", "")
+            keyAlias = localProps.getProperty("keyAlias", "")
+            keyPassword = localProps.getProperty("keyPassword", "")
         }
     }
 
@@ -44,6 +52,29 @@ android {
     buildFeatures {
         compose = true
     }
+}
+
+// 发布时注入收款码：private/donate_qr.png 仅存在于本地（不入库），
+// release 构建前拷贝到生成目录并注册为 release 资源集；文件缺失时构建照常（App 内显示占位图）。
+val donateQrSrc = rootProject.file("private/donate_qr.png")
+val donateAssetsDir = layout.buildDirectory.dir("generated/donateQrAssets")
+
+val injectDonateQr = tasks.register<Copy>("injectDonateQr") {
+    onlyIf { donateQrSrc.exists() }
+    from(donateQrSrc) { rename { "donate_qr.png" } }
+    into(donateAssetsDir)
+}
+
+android {
+    sourceSets.getByName("release") {
+        assets.srcDir(donateAssetsDir)
+    }
+}
+
+tasks.matching {
+    it.name == "mergeReleaseAssets" || it.name.startsWith("lintVital") || it.name.startsWith("generateReleaseLintVital")
+}.configureEach {
+    dependsOn(injectDonateQr)
 }
 
 dependencies {
