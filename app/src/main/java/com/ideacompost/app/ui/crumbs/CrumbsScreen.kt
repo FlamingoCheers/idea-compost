@@ -165,7 +165,6 @@ fun CrumbsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    GhostChip("粘贴")
                     Spacer(Modifier.weight(1f))
                     Button(
                         onClick = vm::saveCrumb,
@@ -284,26 +283,6 @@ fun CrumbsScreen(
     }
 }
 
-@Composable
-private fun GhostChip(label: String) {
-    var soon by remember { mutableStateOf(false) }
-    Column {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(11.dp))
-                .background(Paper)
-                .border(1.dp, Line, RoundedCornerShape(11.dp))
-                .clickable { soon = true }
-                .padding(horizontal = 14.dp, vertical = 7.dp)
-        ) {
-            Text(label, fontSize = 12.5.sp, color = InkSoft)
-        }
-        if (soon) {
-            Text("即将支持", fontSize = 9.sp, color = InkFaint, modifier = Modifier.padding(start = 4.dp, top = 2.dp))
-        }
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CrumbCard(
@@ -331,23 +310,27 @@ private fun CrumbCard(
             .padding(14.dp)
     ) {
         Text(
+            formatTime(crumb.createdAt),
+            style = SansTiny, color = InkFaint, maxLines = 1
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
             crumb.content,
             style = SerifBody,
             color = Ink,
-            maxLines = 6,
+            maxLines = 5,
             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             lineHeight = 21.sp
         )
         Spacer(Modifier.weight(1f))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(formatTime(crumb.createdAt), style = SansTiny, color = InkFaint, maxLines = 1)
             Spacer(Modifier.weight(1f))
             val composted = crumb.status == "composted"
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(if (composted) MossSoft else Sand)
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                    .padding(horizontal = 14.dp, vertical = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

@@ -376,26 +376,12 @@ private fun DonationSection(onOpen: () -> Unit) {
 @Composable
 private fun DonationDialog(onClose: () -> Unit) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
-    var qrVersion by remember { mutableStateOf(0) }
-    val qrFile = remember { java.io.File(ctx.filesDir, "donate_qr.jpg") }
-    val bitmap = remember(qrVersion) {
+    val bitmap = remember {
         runCatching {
-            if (qrFile.exists()) android.graphics.BitmapFactory.decodeFile(qrFile.absolutePath)
-            else ctx.assets.open("donate_qr.png").use { android.graphics.BitmapFactory.decodeStream(it) }
+            ctx.assets.open("donate_qr.png").use { android.graphics.BitmapFactory.decodeStream(it) }
         }.getOrNull()
     }
-    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            runCatching {
-                ctx.contentResolver.openInputStream(uri)?.use { input ->
-                    qrFile.outputStream().use { input.copyTo(it) }
-                }
-            }
-            qrVersion++
-        }
-    }
+    var savedMsg by remember { mutableStateOf<String?>(null) }
     AlertDialog(
         onDismissRequest = onClose,
         containerColor = PaperWarm,
@@ -421,22 +407,43 @@ private fun DonationDialog(onClose: () -> Unit) {
                 }
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    if (bitmap != null) "截图保存后，微信「扫一扫」即可请作者喝杯咖啡。"
-                    else "开发者尚未设置收款码。你也可以在下方自行放入一张。",
+                    if (bitmap != null) "保存图片后，微信「扫一扫」即可请作者喝杯咖啡。"
+                    else "开发者尚未设置收款码。",
                     fontSize = 11.sp, color = InkFaint, textAlign = TextAlign.Center
                 )
-                Spacer(Modifier.height(6.dp))
-                TextButton(onClick = {
-                    picker.launch(
-                        androidx.activity.result.PickVisualMediaRequest(
-                            androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
-                        )
-                    )
-                }) { Text(if (qrFile.exists()) "更换收款码图片" else "放入收款码图片", fontSize = 12.sp, color = Clay) }
+                if (bitmap != null) {
+                    Spacer(Modifier.height(6.dp))
+                    TextButton(onClick = {
+                        val msg = runCatching {
+                            saveQrToGallery(ctx, bitmap)
+                        }.getOrElse { "保存失败：${it.message?.take(60) ?: "未知错误"}" }
+                        savedMsg = msg
+                    }) { Text("保存收款码图片", fontSize = 12.sp, color = Clay) }
+                }
+                savedMsg?.let {
+                    Spacer(Modifier.height(2.dp))
+                    Text(it, fontSize = 10.5.sp, color = MossDeep, textAlign = TextAlign.Center)
+                }
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text("好的", color = Clay) } },
     )
+}
+
+/** 收款码只读：把内置收款码写入系统相册（MediaStore，API 29+ 无需权限）。 */
+private fun saveQrToGallery(ctx: android.content.Context, bmp: android.graphics.Bitmap): String {
+    val name = "ideacompost_donate_qr_${System.currentTimeMillis()}.png"
+    val values = android.content.ContentValues().apply {
+        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, name)
+        put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+        put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/IdeaCompost")
+    }
+    val uri = ctx.contentResolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        ?: error("无法创建相册文件")
+    ctx.contentResolver.openOutputStream(uri)?.use { out ->
+        if (!bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)) error("图片写入失败")
+    } ?: error("无法打开输出流")
+    return "已保存到相册 Pictures/IdeaCompost"
 }
 
 /* ---------------- 昵称对话框 ---------------- */

@@ -72,13 +72,29 @@ fun WaitScreen(
     vm: WaitViewModel = hiltViewModel()
 ) {
     val compost by vm.compost.collectAsState()
+    val progress by vm.progress.collectAsState()
     val c = compost
+    val ctx = androidx.compose.ui.platform.LocalContext.current
 
     // 发酵期间保持屏幕常亮（离开本页自动恢复系统默认）
     val view = LocalView.current
     DisposableEffect(Unit) {
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
+    }
+
+    // Android 13+ 请求通知权限（前台服务进度通知可见；拒绝也不影响发酵）
+    val notifPerm = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { }
+    LaunchedEffect(Unit) {
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                ctx, android.Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            notifPerm.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     val finished = c?.status == "done" || c?.status == "completed" ||
@@ -127,7 +143,7 @@ fun WaitScreen(
         Text(
             if (failed) (c.error ?: "发生了一点意外。") +
                 "\n这批面包渣还完好，随时可以重新点火。"
-            else "发酵进行时请留在这一页——离开后发酵会暂停，\n重新点火将从头开始。屏幕已为你保持常亮。",
+            else "离开这一页或熄屏后，发酵也会继续；\n状态栏会实时播报进度。屏幕已为你保持常亮。",
             style = SansNote, color = InkSoft, textAlign = TextAlign.Center, lineHeight = 19.sp
         )
         if (!failed) {
@@ -149,13 +165,28 @@ fun WaitScreen(
                     elapsed++
                 }
             }
-            val round = c.currentStage.removePrefix("ferment_r").toIntOrNull()
+            val liveProgress = progress?.takeIf {
+                it.compostId == c.id && c.currentStage.startsWith("ferment_") && it.round == c.currentStage
+            }
+            // r 编号是 prompt 标识不是序号：浅 = r1,r3（第1/2轮）；深 = r1-r4；非发酵阶段为 0
+            val seq: Int = if (!c.currentStage.startsWith("ferment_")) 0 else when (c.depth) {
+                "shallow" -> if (c.currentStage == "ferment_r3") 2 else 1
+                "deep" -> when (c.currentStage) {
+                    "ferment_r2" -> 2; "ferment_r3" -> 3; "ferment_r4" -> 4; else -> 1
+                }
+                else -> when (c.currentStage) {
+                    "ferment_r2" -> 2; "ferment_r3" -> 3; else -> 1
+                }
+            }
+            val totalRounds = when (c.depth) { "shallow" -> 2; "deep" -> 4; else -> 3 }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("%02d:%02d".format(elapsed / 60, elapsed % 60), fontSize = 11.5.sp, color = InkFaint)
                 Dot()
                 Text(
                     when {
-                        round != null -> "第 $round 轮 / 约 ${if (c.depth == "deep") 4 else 3} 轮"
+                        seq > 0 && liveProgress != null ->
+                            "第 $seq 轮 · ${liveProgress.done}/${liveProgress.total} 菌已归位"
+                        seq > 0 -> "第 $seq 轮 / 共 $totalRounds 轮"
                         c.currentStage == "integrate" -> "园丁整合中"
                         c.currentStage == "assess" -> "结算营养中"
                         else -> "准备发酵"
@@ -187,7 +218,7 @@ fun WaitScreen(
             )
         } else {
             Text(
-                "暂停发酵并离开（重新点火将从头开始）",
+                "暂停发酵（已完成的轮次会保留，回来接着发酵）",
                 fontSize = 11.5.sp, color = InkFaint,
                 modifier = Modifier
                     .clickable { vm.pause(); onBack() }

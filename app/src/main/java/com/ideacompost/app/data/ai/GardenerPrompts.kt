@@ -36,6 +36,7 @@ class GardenerPrompts @Inject constructor(
                 line.startsWith("### 轮 1") -> sub = "r1"
                 line.startsWith("### 轮 2") -> sub = "r2"
                 line.startsWith("### 轮 3") -> sub = "r3"
+                line.startsWith("### 轮 4") -> sub = "r4"
                 line.startsWith("## S4") -> { section = "s4"; sub = "" }
                 line.startsWith("## S5") -> { section = "s5"; sub = "" }
             }
