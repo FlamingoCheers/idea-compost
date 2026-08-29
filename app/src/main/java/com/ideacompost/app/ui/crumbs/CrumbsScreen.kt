@@ -1,4 +1,4 @@
-package com.ideacompost.app.ui.crumbs
+﻿package com.ideacompost.app.ui.crumbs
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -23,11 +23,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -95,7 +95,7 @@ fun CrumbsScreen(
     val state by vm.state.collectAsState()
     val crumbs by vm.crumbs.collectAsState()
     var editing by remember { mutableStateOf<IdeaEntity?>(null) }
-    val gridState = rememberLazyStaggeredGridState()
+        val gridState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
     val showScrollTop by remember {
         derivedStateOf { gridState.firstVisibleItemIndex >= 1 }
@@ -145,14 +145,14 @@ fun CrumbsScreen(
                 }
                 Spacer(Modifier.height(86.dp))
             } else {
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
                     state = gridState,
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalItemSpacing = 12.dp
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    item(span = StaggeredGridItemSpan.FullLine) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         InputHeader(state = state, crumbs = crumbs, vm = vm)
                     }
                     items(crumbs, key = { it.id }) { crumb ->
@@ -166,7 +166,7 @@ fun CrumbsScreen(
                             onLongClick = { vm.toggleSelect(crumb.id) }
                         )
                     }
-                    item(span = StaggeredGridItemSpan.FullLine) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         Spacer(Modifier.height(86.dp))
                     }
                 }
@@ -240,7 +240,8 @@ fun CrumbsScreen(
         EditCrumbDialog(
             initial = crumb.content,
             onDismiss = { editing = null },
-            onSave = { vm.updateCrumb(crumb.id, it); editing = null }
+            onSave = { vm.updateCrumb(crumb.id, it); editing = null },
+            onDelete = { vm.deleteCrumb(crumb.id); editing = null }
         )
     }
 }
@@ -251,6 +252,7 @@ private fun InputHeader(
     crumbs: List<IdeaEntity>,
     vm: CrumbsViewModel
 ) {
+    Column(Modifier.fillMaxWidth()) {
     Spacer(Modifier.height(18.dp))
     val prompt: AnnotatedString = buildAnnotatedString {
         append("今天，脑子里\n有什么")
@@ -329,6 +331,7 @@ private fun InputHeader(
         )
     }
     Spacer(Modifier.height(12.dp))
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -487,24 +490,39 @@ private fun CompostIcon(color: Color) {
 private fun EditCrumbDialog(
     initial: String,
     onDismiss: () -> Unit,
-    onSave: (String) -> Unit
+    onSave: (String) -> Unit,
+    onDelete: () -> Unit
 ) {
     var text by remember { mutableStateOf(initial) }
+    var confirmDelete by remember { mutableStateOf(false) }
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = PaperWarm,
         title = { Text("修一修这颗面包渣", style = SerifSection, color = Ink) },
         text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.fillMaxWidth().height(200.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Moss,
-                    unfocusedBorderColor = Line
+            Column {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Moss,
+                        unfocusedBorderColor = Line
+                    )
                 )
-            )
+                TextButton(
+                    onClick = { if (confirmDelete) onDelete() else confirmDelete = true },
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    Text(
+                        if (confirmDelete) "再点一次，确认删除" else "🗑 删除本条",
+                        color = Color(0xFFA94438),
+                        fontSize = 14.sp,
+                        fontWeight = if (confirmDelete) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+            }
         },
         confirmButton = {
             TextButton(onClick = { onSave(text) }, enabled = text.isNotBlank()) {

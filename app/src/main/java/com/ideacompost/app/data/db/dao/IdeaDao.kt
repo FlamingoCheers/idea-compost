@@ -30,6 +30,9 @@ interface IdeaDao {
     @Query("UPDATE ideas SET content = :content, updated_at = :updatedAt WHERE id = :id")
     suspend fun updateContent(id: String, content: String, updatedAt: Long)
 
+    @Query("DELETE FROM ideas WHERE id = :id")
+    suspend fun deleteById(id: String)
+
     @Query("SELECT COUNT(*) FROM ideas")
     suspend fun count(): Int
 

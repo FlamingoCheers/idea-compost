@@ -143,3 +143,18 @@
 - 备注：GitHub 侧旧 commit 对象在缓存过期前或仍可按 hash 直达，但密钥已作废，无实际风险。
 
 - 构建产物：versionName 0.3.1 / versionCode 4；debug + release APK（新签名）。
+
+## v0.3.2 回归与发布（2026-08-29）
+
+### BUG-021 [P0·已修复] 非空面包渣页整页布局坍塌（header 元素互叠）
+- 现象：v0.3.1 起，面包渣列表非空时，大标题/输入卡/节标题全部叠绘在 grid 视口顶部（用户真机截图实锤）；空态布局正常。
+- 根因：`InputHeader` 没有根容器——Spacer/Text/输入卡/节标题直接平铺为多个顶层子元素。空态分支中它恰处于外层 Column（顺序布局语义）故侥幸正确；非空分支进入 Lazy 布局的 item（Box 语义）后，所有顶层子元素全部以 cell 原点为基准叠放。与 staggered/grid 具体实现无关（换 LazyVerticalGrid 后坐标逐像素复现）。
+- 修复：InputHeader 整体包 `Column(Modifier.fillMaxWidth())`；顺带从 LazyVerticalStaggeredGrid 迁移到 LazyVerticalGrid（Fixed(2) + GridItemSpan(maxLineSpan) 整行 item），瀑布视觉不变、行为更可控。
+- 验证（模拟器，30 颗桩渣经备份导入通道灌入）：非空页排版正常（31-debug_grid3）；滚动+顶栏固定（32）；回顶按钮浮现/点击回顶/按钮消失（33）；删除断点：卡片→对话框→「🗑 删除本条」→「再点一次，确认删除」两步确认→条目消失列表即时刷新（34/35/36）。
+
+### 新功能：面包渣删除
+- 点击面包渣卡片打开「修一修这颗面包渣」对话框，新增「🗑 删除本条」入口，两步确认防误删（第一次点击变为「再点一次，确认删除」，重开对话框自动复位）。
+- 数据链路：IdeaDao.deleteById（DELETE FROM ideas WHERE id=:id）+ CrumbsViewModel.deleteCrumb 落 bed_events（action=idea_deleted）。
+- 验证：删除后瀑布流即时刷新、已删条目不再出现。
+
+- 构建产物：versionName 0.3.2 / versionCode 5；release APK（v2 签名，可直接覆盖安装 v0.3.1）。

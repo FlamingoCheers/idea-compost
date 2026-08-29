@@ -65,6 +65,19 @@ class CrumbsViewModel @Inject constructor(
         }
     }
 
+    fun deleteCrumb(id: String) {
+        viewModelScope.launch {
+            ideaDao.deleteById(id)
+            bedEventDao.insert(
+                BedEventEntity(
+                    ts = System.currentTimeMillis(),
+                    eventType = "idea_deleted",
+                    payload = """{"idea_id":"$id"}"""
+                )
+            )
+        }
+    }
+
     fun toggleSelect(id: String) {
         val s = _state.value
         if (!s.selecting) {
