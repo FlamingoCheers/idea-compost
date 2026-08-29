@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -36,9 +38,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,6 +79,7 @@ import com.ideacompost.app.ui.theme.SerifBody
 import com.ideacompost.app.ui.theme.SerifDisplay
 import com.ideacompost.app.ui.theme.SerifSection
 import com.ideacompost.app.ui.theme.Wordmark
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -90,6 +95,11 @@ fun CrumbsScreen(
     val state by vm.state.collectAsState()
     val crumbs by vm.crumbs.collectAsState()
     var editing by remember { mutableStateOf<IdeaEntity?>(null) }
+    val gridState = rememberLazyStaggeredGridState()
+    val scope = rememberCoroutineScope()
+    val showScrollTop by remember {
+        derivedStateOf { gridState.firstVisibleItemIndex >= 1 }
+    }
 
     Box(Modifier.fillMaxSize().background(Paper)) {
         Column(
@@ -125,99 +135,26 @@ fun CrumbsScreen(
                 }
             }
 
-            Spacer(Modifier.height(18.dp))
-            val prompt: AnnotatedString = buildAnnotatedString {
-                append("今天，脑子里\n有什么")
-                pushStyle(SpanStyle(color = Clay))
-                append("面包渣")
-                pop()
-                append("？")
-            }
-            Text(prompt, style = SerifDisplay, color = Ink)
-
-            Spacer(Modifier.height(16.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(PaperWarm)
-                    .border(1.dp, Line, RoundedCornerShape(18.dp))
-                    .padding(start = 16.dp, top = 14.dp, end = 16.dp, bottom = 10.dp)
-            ) {
-                OutlinedTextField(
-                    value = state.input,
-                    onValueChange = vm::onInputChange,
-                    placeholder = {
-                        Text("想到什么就丢什么，不用完整，不用正确……", fontSize = 14.5.sp, color = InkFaint)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    minLines = 2,
-                    maxLines = 6,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent
-                    )
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Spacer(Modifier.weight(1f))
-                    Button(
-                        onClick = vm::saveCrumb,
-                        enabled = state.input.isNotBlank(),
-                        modifier = Modifier.height(38.dp),
-                        shape = RoundedCornerShape(11.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Clay,
-                            disabledContainerColor = Sand,
-                            contentColor = PaperWarm,
-                            disabledContentColor = InkFaint
-                        ),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp)
-                    ) {
-                        Text("丢进去", fontSize = 14.sp)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    if (state.selecting) "已选 ${state.selected.size} 颗" else "最近的面包渣",
-                    style = SerifSection, color = Ink, fontSize = 15.sp
-                )
-                Spacer(Modifier.weight(1f))
-                Text(
-                    if (state.selecting) "点选 · 再点取消" else "长按多选 → 堆肥",
-                    fontSize = 12.sp, color = InkFaint, letterSpacing = 0.9.sp,
-                    modifier = Modifier.clickable(enabled = crumbs.isNotEmpty()) {
-                        crumbs.firstOrNull()?.let { vm.toggleSelect(it.id) }
-                    }
-                )
-            }
-            Spacer(Modifier.height(12.dp))
-
             if (crumbs.isEmpty()) {
+                InputHeader(state = state, crumbs = crumbs, vm = vm)
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
                         "这里还空着。\n\n不需要好想法，碎片就行——\n一句话、一个疑问、半截直觉。",
                         textAlign = TextAlign.Center, style = SansNote, color = InkSoft
                     )
                 }
+                Spacer(Modifier.height(86.dp))
             } else {
                 LazyVerticalStaggeredGrid(
                     columns = StaggeredGridCells.Fixed(2),
+                    state = gridState,
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalItemSpacing = 12.dp
                 ) {
+                    item(span = StaggeredGridItemSpan.FullLine) {
+                        InputHeader(state = state, crumbs = crumbs, vm = vm)
+                    }
                     items(crumbs, key = { it.id }) { crumb ->
                         CrumbCard(
                             crumb = crumb,
@@ -229,12 +166,37 @@ fun CrumbsScreen(
                             onLongClick = { vm.toggleSelect(crumb.id) }
                         )
                     }
+                    item(span = StaggeredGridItemSpan.FullLine) {
+                        Spacer(Modifier.height(86.dp))
+                    }
                 }
             }
-            Spacer(Modifier.height(86.dp))
         }
 
         BottomBar(tab = 0, onCrumbs = {}, onCompost = onTabCompost, modifier = Modifier.align(Alignment.BottomCenter))
+
+        AnimatedVisibility(
+            visible = showScrollTop && !state.selecting,
+            enter = fadeIn() + slideInVertically { it },
+            exit = fadeOut() + slideOutVertically { it },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 92.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(PaperWarm.copy(alpha = 0.97f))
+                    .border(1.dp, Line, RoundedCornerShape(50))
+                    .clickable { scope.launch { gridState.animateScrollToItem(0) } }
+                    .padding(horizontal = 18.dp, vertical = 10.dp)
+            ) {
+                Text("↑", color = Clay, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.width(6.dp))
+                Text("回到顶部", fontSize = 12.sp, color = InkSoft)
+            }
+        }
 
         AnimatedVisibility(
             visible = state.selecting,
@@ -283,6 +245,92 @@ fun CrumbsScreen(
     }
 }
 
+@Composable
+private fun InputHeader(
+    state: CrumbsUiState,
+    crumbs: List<IdeaEntity>,
+    vm: CrumbsViewModel
+) {
+    Spacer(Modifier.height(18.dp))
+    val prompt: AnnotatedString = buildAnnotatedString {
+        append("今天，脑子里\n有什么")
+        pushStyle(SpanStyle(color = Clay))
+        append("面包渣")
+        pop()
+        append("？")
+    }
+    Text(prompt, style = SerifDisplay, color = Ink)
+
+    Spacer(Modifier.height(16.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(PaperWarm)
+            .border(1.dp, Line, RoundedCornerShape(18.dp))
+            .padding(start = 16.dp, top = 14.dp, end = 16.dp, bottom = 10.dp)
+    ) {
+        OutlinedTextField(
+            value = state.input,
+            onValueChange = vm::onInputChange,
+            placeholder = {
+                Text("想到什么就丢什么，不用完整，不用正确……", fontSize = 14.5.sp, color = InkFaint)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            minLines = 2,
+            maxLines = 6,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            )
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(Modifier.weight(1f))
+            Button(
+                onClick = vm::saveCrumb,
+                enabled = state.input.isNotBlank(),
+                modifier = Modifier.height(38.dp),
+                shape = RoundedCornerShape(11.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Clay,
+                    disabledContainerColor = Sand,
+                    contentColor = PaperWarm,
+                    disabledContentColor = InkFaint
+                ),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp)
+            ) {
+                Text("丢进去", fontSize = 14.sp)
+            }
+        }
+    }
+
+    Spacer(Modifier.height(20.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            if (state.selecting) "已选 ${state.selected.size} 颗" else "最近的面包渣",
+            style = SerifSection, color = Ink, fontSize = 15.sp
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            if (state.selecting) "点选 · 再点取消" else "长按多选 → 堆肥",
+            fontSize = 12.sp, color = InkFaint, letterSpacing = 0.9.sp,
+            modifier = Modifier.clickable(enabled = crumbs.isNotEmpty()) {
+                crumbs.firstOrNull()?.let { vm.toggleSelect(it.id) }
+            }
+        )
+    }
+    Spacer(Modifier.height(12.dp))
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CrumbCard(
@@ -295,7 +343,7 @@ private fun CrumbCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(168.dp)
+            .height(190.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(PaperWarm)
             .border(

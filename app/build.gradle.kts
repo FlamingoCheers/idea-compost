@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
-// 发布签名密钥与密码从 local.properties（不公开）读取；缺失时 release 无法签名（符合预期：签名能力仅限作者本地）
+// 鍙戝竷绛惧悕瀵嗛挜涓庡瘑鐮佷粠 local.properties锛堜笉鍏紑锛夎鍙栵紱缂哄け鏃?release 鏃犳硶绛惧悕锛堢鍚堥鏈燂細绛惧悕鑳藉姏浠呴檺浣滆€呮湰鍦帮級
 val localProps = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
@@ -22,8 +22,8 @@ android {
         applicationId = "com.ideacompost.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 4
+        versionName = "0.3.1"
     }
 
     signingConfigs {

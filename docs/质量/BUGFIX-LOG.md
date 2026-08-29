@@ -124,4 +124,22 @@
 - 2026-08-29 BUG-015/016/017/018/019 修复并经 fake OpenAI 服务端到端验证（adb reverse tcp:8765）：并行并发 4+补位 / 重试 2 次退避后成功 / 重试耗尽跳过不整轮失败 / 熄屏 12s 发酵续跑（前台服务+进度通知）/ 冲突卡纵向排版+文本清洗 / 轮数提示准确 / 深度=轮数对齐设计 / 本地 http 可连。
 - 输入页三修（用户 P3）：粘贴 chip 移除；未发酵 badge 独占底行（不再与日期同行挤压截断）；日期移至卡片最上方。
 - 捐赠语义修正（用户 P2）：收款码为作者内置只读资产，用户仅可「保存收款码图片」到相册 Pictures/IdeaCompost（MediaStore，实测文件落盘）。
-- 构建产物：versionName 0.3.0 / versionCode 3；debug + release APK。
+## v0.3.1 回归与发布（2026-08-29）
+
+### BUG-020 [P1·已修复] 已发酵 badge 显示不出来（胶囊被裁成空壳）
+- 现象：v0.3 将 badge 改为独占底行后，168dp 固定卡高装不下全部内容（28 padding + 16 日期 + 6 间距 + 105 正文5×21 + 22 badge = 177dp > 168dp），badge 行被压缩、文字垂直裁切——视觉上只剩空胶囊；「未发酵」恰好看似正常（用户实测截图实锤）。
+- 修复：CrumbCard 高度 168→190dp（等高长矩形，内容+badge 完整露出）。
+- 验证：导入桩数据（raw+composted），两种 badge 节点树与截图均完整（design/回归截图/29）。
+
+### 面包渣页滚动重构 + 回到顶部（用户需求）
+- 顶栏（思想堆肥 + IDEA COMPOST + 头像）固定不随滚动；大标题/输入框/节标题并入 LazyVerticalStaggeredGrid 首个整行 item（FullLine span），跟随卡片一起滚动；空态保持原布局。
+- 输入框完全滚出视野（firstVisibleItemIndex ≥ 1）后，底部居中浮现「↑ 回到顶部」胶囊按钮（BottomBar 上方 92dp），点击 animateScrollToItem(0) 平滑回顶；多选操作条显示时自动隐藏。
+- 验证（10 颗桩渣）：上滑后输入框滚出、顶栏固定、按钮出现；点按钮回到顶部且按钮消失（截图 30）。
+
+### 安全事件：签名密钥泄露与轮换（仓库公开后发现）
+- 事件：ideacompost-release.keystore 曾于审计收尾 commit 提交入库；仓库转公开后全历史扫描（git log -S）确认 keystore 文件与同期 build.gradle.kts 中硬编码的签名密码均在公开历史中可见。
+- 处置：①git filter-repo 从全部历史抹除 keystore 并强推重写；②旧 keystore 作废（本地删除）；③生成全新 ideacompost-v2.keystore（随机 18 位密码，仅存 local.properties，gitignore 覆盖）；④v0.3.1 起 Release 用新签名——**旧版本升级需卸载重装一次（签名不同不可覆盖安装）**。
+- 其余敏感项复核结论：API Key 仅存设备侧（不进仓库）；fake server 的 sk-fake 为假值；local.properties 与 private/ 从未被跟踪；收款码为作者主动公开资产，无风险。
+- 备注：GitHub 侧旧 commit 对象在缓存过期前或仍可按 hash 直达，但密钥已作废，无实际风险。
+
+- 构建产物：versionName 0.3.1 / versionCode 4；debug + release APK（新签名）。
