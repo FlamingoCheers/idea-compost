@@ -1,4 +1,4 @@
-# Built application files
+﻿# Built application files
 *.apk
 *.aab
 *.ap_
@@ -28,3 +28,11 @@ captures/
 # Misc
 .DS_Store
 *.log
+
+# Signing keys (never commit)
+*.keystore
+*.jks
+
+# Local-only files (kept out of repo; injected into APK at release build)
+private/
+app/src/main/assets/donate_qr.png
